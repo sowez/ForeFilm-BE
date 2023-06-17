@@ -2,6 +2,7 @@ package com.sowez.photo.entity
 
 import jakarta.persistence.*
 
+@Entity
 class Brand(
         image: Image,
         name: String,

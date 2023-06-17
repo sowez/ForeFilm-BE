@@ -2,6 +2,7 @@ package com.sowez.photo.entity
 
 import jakarta.persistence.*
 
+@Entity
 class Layout(
         image: Image,
         isDefaultLayout: Boolean,
