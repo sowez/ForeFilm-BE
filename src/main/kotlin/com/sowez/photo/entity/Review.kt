@@ -3,6 +3,7 @@ package com.sowez.photo.entity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
+@Entity
 class Review (
     store: Store,
     contents: String,
