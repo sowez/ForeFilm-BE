@@ -4,7 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 class Brand(
-        image: Image,
+        logoImage: Image,
         name: String,
 ) {
     @Id
@@ -14,7 +14,7 @@ class Brand(
 
     @OneToOne
     @JoinColumn(name = "brand_logo_image_id")
-    var image: Image = image
+    var logoImage: Image = logoImage
         protected set
 
     @Column(nullable = false, name = "brand_name")

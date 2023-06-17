@@ -13,12 +13,12 @@ class StoreLayout(
     val id: Long = 0
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
+    @JoinColumn(nullable = false, name = "store_id")
     var store: Store = store
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "layout_id")
+    @JoinColumn(nullable = false, name = "layout_id")
     var layout: Layout = layout
         protected set
 
