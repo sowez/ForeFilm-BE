@@ -4,11 +4,11 @@ import jakarta.persistence.*
 
 @Entity
 class Image(
-        image_uuid: String,
-        original_name: String,
-        image_name: String,
+        imageUuid: String,
+        originalName: String,
+        imageName: String,
         extension: String,
-        image_path: String,
+        imagePath: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,15 +16,15 @@ class Image(
     val id: Long = 0
 
     @Column(name = "image_uuid")
-    var image_uuid: String = image_uuid
+    var imageUuid: String = imageUuid
         protected set
 
     @Column(nullable = false, name = "original_name")
-    var original_name: String = original_name
+    var originalName: String = originalName
         protected set
 
     @Column(name = "image_name")
-    var image_name: String = image_name
+    var imageName: String = imageName
         protected set
 
     @Column(nullable = false, name = "extension")
@@ -32,7 +32,7 @@ class Image(
         protected set
 
     @Column(nullable = false, name = "image_path")
-    var image_path: String = image_path
+    var imagePath: String = imagePath
         protected set
 
 }
