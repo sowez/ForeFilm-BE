@@ -44,6 +44,6 @@ class Review (
         protected set
 
     @Column(name = "review_profile")
-    var profile: Int = profile
+    var profile: Int? = profile
         protected set
 }
