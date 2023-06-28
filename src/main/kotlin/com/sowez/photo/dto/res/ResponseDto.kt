@@ -1,9 +1,11 @@
 package com.sowez.photo.dto.res
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.sowez.photo.error.ErrorCode
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class ResponseDto<T>(
-    val body: T,
-    errorCode: ErrorCode = ErrorCode.SUCCESS
+    errorCode: ErrorCode = ErrorCode.SUCCESS,
+    val body: T? = null
 ) {
     val status: Int = errorCode.code
     val message: String = errorCode.message
