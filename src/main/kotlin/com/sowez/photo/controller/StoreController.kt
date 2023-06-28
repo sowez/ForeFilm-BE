@@ -32,9 +32,9 @@ class StoreController(
     fun editStoreInfo(
         @PathVariable storeId: Long,
         @RequestBody @Valid editDto: StoreEditReqDto
-    ): ResponseEntity<Void>{
+    ): ResponseEntity<ResponseDto<Void>>{
         storeService.editStoreInfo(storeId)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok(ResponseDto())
     }
 
     @GetMapping("/{storeId}")
