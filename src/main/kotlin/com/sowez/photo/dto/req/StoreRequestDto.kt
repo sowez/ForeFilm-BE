@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull
 data class StoreCreateReqDto(
     @field:NotBlank
     val storeName: String,
-    @field:NotBlank
+    @field:NotNull
     val storeType: StoreType,
     @field:NotBlank
     val storeAddress: String,
