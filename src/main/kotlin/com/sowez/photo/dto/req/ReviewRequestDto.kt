@@ -2,6 +2,7 @@ package com.sowez.photo.dto.req
 
 import com.sowez.photo.dto.SnakeCaseDto
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.util.Base64
 
 data class ReviewCreateReqDto(
@@ -11,7 +12,7 @@ data class ReviewCreateReqDto(
     val reviewPassword: String,
     @field:NotBlank
     val reviewContents: String,
-    @field:NotBlank
+    @field:NotNull
     val reviewTagIds: List<Long>,
-    val reviewImages: List<Base64>
+    val reviewImages: List<String>
 ): SnakeCaseDto()
