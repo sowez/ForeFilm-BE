@@ -56,7 +56,7 @@ class Store(
     var boothInfo: BoothInfo? = boothInfo
         protected set
 
-    fun setBoothInfo(boothInfo: BoothInfo?) {
+    fun addBoothInfo(boothInfo: BoothInfo?) {
         this.boothInfo = boothInfo
     }
 
