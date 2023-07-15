@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 class ReviewController (val reviewService: ReviewService) {
     @PostMapping("/reviews")
     fun createReview (
-            @RequestBody @Valid createDto:ReviewCreateReqDto
+        @RequestBody @Valid createDto:ReviewCreateReqDto
     ): ResponseEntity<ResponseDto<CreateResponseDto>>{
         val newReviewId = reviewService.createReview(createDto)
         return ResponseEntity.ok(ResponseDto(body = CreateResponseDto(newReviewId)))
@@ -18,7 +18,7 @@ class ReviewController (val reviewService: ReviewService) {
 
     @GetMapping("/reviews/{review_id}")
     fun getSingleReview (
-            @PathVariable reviewId: Long
+        @PathVariable reviewId: Long
     ): ResponseEntity<ResponseDto<SingleReviewResDto>>{
         val reviewResponse = reviewService.getSingleReview(reviewId)
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
@@ -26,7 +26,7 @@ class ReviewController (val reviewService: ReviewService) {
 
     @GetMapping("/stores/{store_id}/review-images")
     fun getReviewImages (
-            @PathVariable storeId: Long
+        @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewImagesResDto>>{
         val reviewResponse = reviewService.getReviewImages(storeId)
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
@@ -34,9 +34,9 @@ class ReviewController (val reviewService: ReviewService) {
 
     @GetMapping("/stores/{store_id}/reviews")
     fun getReviews (
-            @PathVariable storeId: Long,
-            @RequestParam limit: Int,
-            @RequestParam offset: Int
+        @PathVariable storeId: Long,
+        @RequestParam limit: Int,
+        @RequestParam offset: Int
     ): ResponseEntity<ResponseDto<ReviewsResDto>> {
         val reviewResponse = reviewService.getReviews(storeId, limit, offset)
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
@@ -44,7 +44,7 @@ class ReviewController (val reviewService: ReviewService) {
 
     @GetMapping("/stores/{store_id}/tags")
     fun getReviewTags (
-            @PathVariable storeId: Long
+        @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewTagsResDto>>{
         val reviewResponse = reviewService.getReviewTags(storeId)
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))

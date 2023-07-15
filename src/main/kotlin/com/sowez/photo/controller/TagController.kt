@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 class TagController (val tagService: TagService){
     @PostMapping
     fun createTag(
-            @RequestBody @Valid createDto: TagCreateReqDto
+        @RequestBody @Valid createDto: TagCreateReqDto
     ): ResponseEntity<ResponseDto<CreateResponseDto>>{
         val newTagId = tagService.createTag(createDto)
         return ResponseEntity.ok(ResponseDto(body = CreateResponseDto(newTagId)))
