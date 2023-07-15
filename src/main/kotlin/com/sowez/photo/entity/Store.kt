@@ -56,9 +56,9 @@ class Store(
     var boothInfo: BoothInfo? = boothInfo
         protected set
 
-//    fun setBoothInfo(boothInfo: BoothInfo?) {
-//        this.boothInfo = boothInfo
-//    }
+    fun setBoothInfo(boothInfo: BoothInfo?) {
+        this.boothInfo = boothInfo
+    }
 
     fun getPayTypes(): Set<PayType> {
         val payTypeStrings: MutableSet<String> = mutableSetOf()
