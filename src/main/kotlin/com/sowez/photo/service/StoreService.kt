@@ -19,3 +19,31 @@ interface StoreService {
     fun getStoreImages(storeId: Long, limit: Int, offset: Int): StoreImagesResDto
 
 }
+
+@Service
+class StoreServiceTestImpl: StoreService {
+    override fun createStore(createDto: StoreCreateReqDto): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun editStoreInfo(storeId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getStoreInfo(storeId: Long): StoreInfoResDto {
+        TODO("Not yet implemented")
+    }
+
+    override fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto {
+        TODO("Not yet implemented")
+    }
+
+    override fun getStoreImages(storeId: Long, limit: Int, offset: Int): StoreImagesResDto {
+        TODO("Not yet implemented")
+    }
+}
+
