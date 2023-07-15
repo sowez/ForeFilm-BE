@@ -16,6 +16,6 @@ interface StoreService {
     fun getStoreInfo(storeId: Long): StoreInfoResDto
     fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto>
     fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto
-    fun getStoreImages(limit: Int, offset: Int): StoreImagesResDto
+    fun getStoreImages(storeId: Long, limit: Int, offset: Int): StoreImagesResDto
 
 }
