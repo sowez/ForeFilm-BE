@@ -47,7 +47,7 @@ class StoreController(
 
     @GetMapping
     fun searchStore(
-        @PathParam(value = "q") query: String,
+        @RequestParam(value = "q") query: String,
         @PageableDefault(size = 10) pageable: Pageable
     ): ResponseEntity<ResponseDto<Page<StoreSearchResDto>>> {
         val storeResponses = storeService.searchStore(query, pageable)
