@@ -17,7 +17,7 @@ interface StoreService {
     fun getStoreInfo(storeId: Long): StoreInfoResDto
     fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto>
     fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto
-    fun getStoreImages(storeId: Long, limit: Int, offset: Int): StoreImagesResDto
+    fun getStoreImages(storeId: Long, limit: Int, offset: Int?): StoreImagesResDto
 
 }
 
@@ -62,14 +62,15 @@ class StoreServiceTestImpl: StoreService {
         )
     }
 
-    override fun getStoreImages(storeId: Long, limit: Int, offset: Int): StoreImagesResDto {
-        println("StoreServiceTestImpl.getStoreImages")
+    override fun getStoreImages(storeId: Long, limit: Int, offset: Int?): StoreImagesResDto {
+        println("StoreServiceTestImpl.getStoreImages(storeId=$storeId, limit=$limit, offset=$offset)")
         return StoreImagesResDto(
-                listOf(
+                images = listOf(
                         StoreImageResDto(imageId = 1L, imageUrl = "https://www.forefilm.com/images/1234"),
                         StoreImageResDto(imageId = 5L, imageUrl = "https://www.forefilm.com/images/4321"),
                         StoreImageResDto(imageId = 10L, imageUrl = "https://www.forefilm.com/images/43")
-                )
+                ),
+                lastImageId = 10L
         )
     }
 

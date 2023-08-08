@@ -65,8 +65,8 @@ class StoreController(
     @GetMapping("/{storeId}/images")
     fun getStoreImages(
         @PathVariable storeId: Long,
-        @RequestParam limit: Int,
-        @RequestParam offset: Int
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam offset: Int?
     ): ResponseEntity<ResponseDto<StoreImagesResDto>> {
         val storeResponses = storeService.getStoreImages(storeId, limit, offset)
         return ResponseEntity.ok(ResponseDto(body = storeResponses))

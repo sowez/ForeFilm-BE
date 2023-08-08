@@ -27,7 +27,8 @@ data class StoreBrandLogoImageResDto (
 ): SnakeCaseDto()
 
 data class StoreImagesResDto (
-    val images: List<StoreImageResDto> = mutableListOf()
+    val images: List<StoreImageResDto> = mutableListOf(),
+    val lastImageId: Long? = null
 ): SnakeCaseDto()
 
 data class StoreImageResDto (
