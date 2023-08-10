@@ -16,7 +16,7 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = CreateResponseDto(newReviewId)))
     }
 
-    @GetMapping("/reviews/{review_id}")
+    @GetMapping("/reviews/{reviewId}")
     fun getSingleReview (
         @PathVariable reviewId: Long
     ): ResponseEntity<ResponseDto<SingleReviewResDto>>{
@@ -24,7 +24,7 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{store_id}/review-images")
+    @GetMapping("/stores/{storeId}/review-images")
     fun getReviewImages (
         @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewImagesResDto>>{
@@ -32,17 +32,17 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{store_id}/reviews")
+    @GetMapping("/stores/{storeId}/reviews")
     fun getReviews (
         @PathVariable storeId: Long,
-        @RequestParam limit: Int,
-        @RequestParam offset: Int
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam offset: Int?
     ): ResponseEntity<ResponseDto<ReviewsResDto>> {
         val reviewResponse = reviewService.getReviews(storeId, limit, offset)
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{store_id}/tags")
+    @GetMapping("/stores/{storeId}/tags")
     fun getReviewTags (
         @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewTagsResDto>>{

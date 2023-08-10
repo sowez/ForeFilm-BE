@@ -10,7 +10,7 @@ interface ReviewService {
     fun createReview(createDto: ReviewCreateReqDto): Long
     fun getSingleReview(reviewId: Long): SingleReviewResDto
     fun getReviewImages(storeId: Long): ReviewImagesResDto
-    fun getReviews(storeId: Long, limit: Int, offset: Int): ReviewsResDto
+    fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto
     fun getReviewTags(storeId: Long): ReviewTagsResDto
 }
 
@@ -22,7 +22,7 @@ class ReviewServiceTestImpl: ReviewService{
     }
 
     override fun getSingleReview(reviewId: Long): SingleReviewResDto {
-        println("ReviewServiceTestImpl.createReview")
+        println("ReviewServiceTestImpl.getSingleReview")
         return SingleReviewResDto(
             reviewNickname = "eumji",
             reviewProfile = "1",
@@ -37,7 +37,7 @@ class ReviewServiceTestImpl: ReviewService{
     }
 
     override fun getReviewImages(storeId: Long): ReviewImagesResDto {
-        println("ReviewServiceTestImpl.createReview")
+        println("ReviewServiceTestImpl.getReviewImages")
         return ReviewImagesResDto(
             listOf(
                 ReviewImageResDto(1, "image1"),
@@ -47,8 +47,8 @@ class ReviewServiceTestImpl: ReviewService{
 
     }
 
-    override fun getReviews(storeId: Long, limit: Int, offset: Int): ReviewsResDto {
-        println("ReviewServiceTestImpl.createReview")
+    override fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto {
+        println("ReviewServiceTestImpl.getReviews")
         return ReviewsResDto(
             listOf(
                 ReviewResDto(
@@ -67,7 +67,7 @@ class ReviewServiceTestImpl: ReviewService{
     }
 
     override fun getReviewTags(storeId: Long): ReviewTagsResDto {
-        println("ReviewServiceTestImpl.createReview")
+        println("ReviewServiceTestImpl.getReviewTags")
         return ReviewTagsResDto(
             totalCnt = 10,
             tags = listOf(
