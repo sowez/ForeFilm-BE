@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -41,7 +41,7 @@ class ReviewControllerTest(
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.body.created").value(1L))
-            .andDo(MockMvcResultHandlers.print())
+            .andDo(print())
     }
 
     @Test
@@ -63,6 +63,7 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.tags[1].tag_contents").value("tag2"))
             .andExpect(jsonPath("$.body.tags[1].tag_emoji_name").value("emoji2"))
             .andExpect(jsonPath("$.body.image_url").value("jh"))
+            .andDo(print())
     }
 
     @Test
@@ -77,6 +78,7 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.images[0].image_url").value("image1"))
             .andExpect(jsonPath("$.body.images[1].image_id").value(2))
             .andExpect(jsonPath("$.body.images[1].image_url").value("image2"))
+            .andDo(print())
     }
 
     @Test
@@ -96,6 +98,7 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_emoji_name").value("1"))
             .andExpect(jsonPath("$.body.reviews[0].thumbnail_image_url").value("url"))
             .andExpect(jsonPath("$.body.reviews[0].image_count").value(1))
+            .andDo(print())
     }
 
     @Test
@@ -111,5 +114,6 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.tags[0].tag_contents").value("1"))
             .andExpect(jsonPath("$.body.tags[0].tag_emoji_name").value("1"))
             .andExpect(jsonPath("$.body.tags[0].tag_count").value(1))
+            .andDo(print())
     }
 }
