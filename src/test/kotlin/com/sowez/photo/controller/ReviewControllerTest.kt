@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -55,7 +56,7 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.review_nickname").value("eumji"))
             .andExpect(jsonPath("$.body.review_profile").value(1))
             .andExpect(jsonPath("$.body.review_contents").value(1))
-//            .andExpect(jsonPath("$.body.review_created_datetime").value(Date(System.currentTimeMillis())))
+            .andExpect(jsonPath("$.body.review_created_datetime").value(LocalDateTime.of(2023,8,12,13,35,1).toString()))
             .andExpect(jsonPath("$.body.tags[0].tag_id").value(1))
             .andExpect(jsonPath("$.body.tags[0].tag_contents").value("tag1"))
             .andExpect(jsonPath("$.body.tags[0].tag_emoji_name").value("emoji1"))
@@ -91,13 +92,14 @@ class ReviewControllerTest(
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.body.reviews[0].review_id").value(1))
             .andExpect(jsonPath("$.body.reviews[0].profile_image_url").value("profileUrl"))
-//            .andExpect(jsonPath("$.body.reviews[0].created_datetime").value(1))
+            .andExpect(jsonPath("$.body.reviews[0].created_datetime").value(LocalDateTime.of(2023,8,12,13,35, 1).toString()))
             .andExpect(jsonPath("$.body.reviews[0].contents").value("content"))
             .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_id").value(1))
             .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_contents").value("1"))
             .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_emoji_name").value("1"))
             .andExpect(jsonPath("$.body.reviews[0].thumbnail_image_url").value("url"))
             .andExpect(jsonPath("$.body.reviews[0].image_count").value(1))
+            .andExpect(jsonPath("$.body.last_review_id").value(10))
             .andDo(print())
     }
 

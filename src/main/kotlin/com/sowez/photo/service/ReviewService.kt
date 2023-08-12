@@ -3,6 +3,8 @@ package com.sowez.photo.service
 import com.sowez.photo.dto.req.ReviewCreateReqDto
 import com.sowez.photo.dto.res.*
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -26,7 +28,7 @@ class ReviewServiceTestImpl: ReviewService{
         return SingleReviewResDto(
             reviewNickname = "eumji",
             reviewProfile = "1",
-            reviewCreatedDatetime = Date(System.currentTimeMillis()),
+            reviewCreatedDatetime = LocalDateTime.of(2023,8,12,13,35, 1),
             reviewContents = "1",
             tags = listOf(
                 TagResDto(1, "tag1", "emoji1"),
@@ -54,7 +56,7 @@ class ReviewServiceTestImpl: ReviewService{
                 ReviewResDto(
                     1,
                     "profileUrl",
-                    Date(System.currentTimeMillis()),
+                    LocalDateTime.of(2023,8,12,13,35, 1),
                     "content",
                     listOf(
                         TagResDto(1,"1", "1")
@@ -62,7 +64,8 @@ class ReviewServiceTestImpl: ReviewService{
                     "url",
                     1
                 )
-            )
+            ),
+            lastReviewId = 10
         )
     }
 
