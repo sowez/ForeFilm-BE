@@ -9,3 +9,14 @@ interface TagService {
     fun createTag(createDto: TagCreateReqDto): Long
     fun getTags(): TagsResDto
 }
+
+@Service
+class TagServiceTestImpl: TagService {
+    override fun createTag(createDto: TagCreateReqDto): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun getTags(): TagsResDto {
+        TODO("Not yet implemented")
+    }
+}
