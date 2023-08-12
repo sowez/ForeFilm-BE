@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.Date
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -83,6 +82,7 @@ class ReviewControllerTest(
     @Test
     @DisplayName("스토어 리뷰 조회")
     fun get_reviews(){
+        // when & then
         mockMvc.perform(
             get("/stores/{storeId}/reviews?limit=20&offset=1", 1L)
         )
@@ -101,6 +101,7 @@ class ReviewControllerTest(
     @Test
     @DisplayName("스토어 태그 조회")
     fun get_review_tags(){
+        // when && then
         mockMvc.perform(
             get("/stores/{storeId}/tags",1L)
         )
