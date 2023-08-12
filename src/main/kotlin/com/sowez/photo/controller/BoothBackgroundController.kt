@@ -1,6 +1,7 @@
 package com.sowez.photo.controller
 
 import com.sowez.photo.dto.BoothBackgroundInfoResDto
+import com.sowez.photo.dto.BoothBackgroundsResDto
 import com.sowez.photo.dto.res.*
 import com.sowez.photo.service.BoothBackgroundService
 import org.springframework.http.ResponseEntity
@@ -16,10 +17,9 @@ class BoothBackgroundController(
      */
     @GetMapping
     fun getBoothInfo(
-            @PathVariable storeId: Long
-    ): ResponseEntity<ResponseDto<BoothBackgroundInfoResDto>>{
-        val boothBackgroundResponse = boothBackgroundService.getBoothBackgroundInfo(storeId)
-        return ResponseEntity.ok(ResponseDto(body = boothBackgroundResponse))
+    ): ResponseEntity<ResponseDto<BoothBackgroundsResDto>>{
+        val boothBackgroundsResponse = boothBackgroundService.getBoothBackgroundInfo()
+        return ResponseEntity.ok(ResponseDto(body = boothBackgroundsResponse))
     }
     
 }
