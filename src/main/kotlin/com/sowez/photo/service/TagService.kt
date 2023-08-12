@@ -13,10 +13,16 @@ interface TagService {
 @Service
 class TagServiceTestImpl: TagService {
     override fun createTag(createDto: TagCreateReqDto): Long {
-        TODO("Not yet implemented")
+        println("TagServiceTestImpl.createTag")
+        return 1L
     }
 
     override fun getTags(): TagsResDto {
-        TODO("Not yet implemented")
+        println("TagServiceTestImpl.getTags")
+        return TagsResDto(
+            tags = listOf(
+                TagResDto(1,"1","1")
+            )
+        )
     }
 }

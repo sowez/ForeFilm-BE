@@ -1,42 +1,84 @@
 package com.sowez.photo.service
 
 import com.sowez.photo.dto.req.ReviewCreateReqDto
-import com.sowez.photo.dto.res.ReviewImagesResDto
-import com.sowez.photo.dto.res.ReviewTagsResDto
-import com.sowez.photo.dto.res.ReviewsResDto
-import com.sowez.photo.dto.res.SingleReviewResDto
+import com.sowez.photo.dto.res.*
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 @Service
 interface ReviewService {
     fun createReview(createDto: ReviewCreateReqDto): Long
     fun getSingleReview(reviewId: Long): SingleReviewResDto
     fun getReviewImages(storeId: Long): ReviewImagesResDto
-    fun getReviews(storeId: Long, limit: Int, offset: Int): ReviewsResDto
+    fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto
     fun getReviewTags(storeId: Long): ReviewTagsResDto
 }
 
-
 @Service
-class ReviewServiceTestImpl: ReviewService {
+class ReviewServiceTestImpl: ReviewService{
     override fun createReview(createDto: ReviewCreateReqDto): Long {
-        TODO("Not yet implemented")
+        println("ReviewServiceTestImpl.createReview")
+        return 1L
     }
 
     override fun getSingleReview(reviewId: Long): SingleReviewResDto {
-        TODO("Not yet implemented")
+        println("ReviewServiceTestImpl.getSingleReview")
+        return SingleReviewResDto(
+            reviewNickname = "eumji",
+            reviewProfile = "1",
+            reviewCreatedDatetime = LocalDateTime.of(2023,8,12,13,35, 1),
+            reviewContents = "1",
+            tags = listOf(
+                TagResDto(1, "tag1", "emoji1"),
+                TagResDto(2, "tag2", "emoji2")
+            ),
+            imageUrl = "jh"
+        )
     }
 
     override fun getReviewImages(storeId: Long): ReviewImagesResDto {
-        TODO("Not yet implemented")
+        println("ReviewServiceTestImpl.getReviewImages")
+        return ReviewImagesResDto(
+            listOf(
+                ReviewImageResDto(1, "image1"),
+                ReviewImageResDto(2, "image2")
+            )
+        )
+
     }
 
-    override fun getReviews(storeId: Long, limit: Int, offset: Int): ReviewsResDto {
-        TODO("Not yet implemented")
+    override fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto {
+        println("ReviewServiceTestImpl.getReviews")
+        return ReviewsResDto(
+            listOf(
+                ReviewResDto(
+                    1,
+                    "profileUrl",
+                    LocalDateTime.of(2023,8,12,13,35, 1),
+                    "content",
+                    listOf(
+                        TagResDto(1,"1", "1")
+                    ),
+                    "url",
+                    1
+                )
+            ),
+            lastReviewId = 10
+        )
     }
 
     override fun getReviewTags(storeId: Long): ReviewTagsResDto {
-        TODO("Not yet implemented")
+        println("ReviewServiceTestImpl.getReviewTags")
+        return ReviewTagsResDto(
+            totalCnt = 10,
+            tags = listOf(
+                ReviewTagResDto(
+                    1,"1", "1", 1
+                )
+            )
+        )
     }
 
 }
