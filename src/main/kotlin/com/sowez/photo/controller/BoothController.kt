@@ -35,7 +35,7 @@ class BoothController(
             @PathVariable storeId: Long,
             @RequestBody @Valid editDto: BoothEditReqDto
     ): ResponseEntity<ResponseDto<Void>>{
-        boothService.editBoothInfo(storeId)
+        boothService.editBoothInfo(storeId, editDto)
         return ResponseEntity.ok(ResponseDto())
     }
 
@@ -44,9 +44,9 @@ class BoothController(
      */
     @GetMapping("/{storeId}/booth")
     fun getBoothInfo(
-            @PathVariable boothId: Long
+            @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<BoothInfoResDto>>{
-        val boothResponse = boothService.getBoothInfo(boothId)
+        val boothResponse = boothService.getBoothInfo(storeId)
         return ResponseEntity.ok(ResponseDto(body = boothResponse))
     }
     
