@@ -9,5 +9,6 @@ enum class ErrorCode(
 
     // NOT FOUND
     NOT_FOUND(404, "NOT FOUND"),
+    STORE_NOT_EXIST(404, "존재하지 않는 매장입니다."),
 
 }
