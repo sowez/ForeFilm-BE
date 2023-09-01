@@ -33,6 +33,8 @@ class StoreServiceImpl(
     val storeRepository: StoreRepository,
     val brandRepository: BrandRepository
 ): StoreService {
+
+    @Transactional
     override fun createStore(createDto: StoreCreateReqDto): Long {
         val brand = brandRepository.findById(createDto.brandId)
             .orElseThrow { BrandNotFoundException(createDto.brandId) }
@@ -52,8 +54,41 @@ class StoreServiceImpl(
         return store.id
     }
 
+    @Transactional
     override fun editStoreInfo(storeId: Long, editDto: StoreEditReqDto) {
-        println("StoreServiceTestImpl.editStoreInfo")
+        storeRepository.findById(storeId)
+            .orElseThrow{ StoreNotFoundException(storeId) }
+            .apply {
+                if (this.name != editDto.storeName) {
+                    this.editName(editDto.storeName)
+                }
+
+                if (this.type != editDto.storeType) {
+                    this.editType(editDto.storeType)
+                }
+
+                if (this.addressInfo.address != editDto.storeAddress) {
+                    this.editAddressInfo(Address(address=editDto.storeAddress))
+                }
+
+                if (this.brand.id != editDto.brandId) {
+                    val brand = brandRepository.findById(editDto.brandId)
+                        .orElseThrow { BrandNotFoundException(editDto.brandId) }
+                    this.editBrand(brand)
+                }
+
+                if (this.operatingTime != editDto.storeOperatingTime) {
+                    this.editOperatingTime(editDto.storeOperatingTime)
+                }
+
+                if (this.phoneNumber != editDto.storePhoneNum) {
+                    this.editPhoneNumber(editDto.storePhoneNum)
+                }
+
+                if (this.getPayTypes() != editDto.payTypes) {
+                    this.editPayTypes(editDto.payTypes)
+                }
+            }
     }
 
     override fun getStoreInfo(storeId: Long): StoreInfoResDto {

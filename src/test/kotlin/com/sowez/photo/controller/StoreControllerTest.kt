@@ -12,6 +12,8 @@ import com.sowez.photo.repository.ImageRepository
 import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -82,11 +84,27 @@ class StoreControllerTest(
     @DisplayName("새로운 매장 생성 (필수 항목만 포함)")
     fun create_new_store_with_only_required_fields() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
         val requestDto = StoreCreateReqDto(
                 storeName = "하루필름 강남점",
                 storeType = StoreType.STORE,
                 storeAddress = "서울 어쩌구 저쩌구",
-                brandId = 11L,
+                brandId = brand.id,
                 storeOperatingTime = null,
                 storePhoneNum = null,
                 payTypes = null
@@ -99,7 +117,6 @@ class StoreControllerTest(
                         .content(objectMapper.writeValueAsString(requestDto))
         )
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.body.created").value(1L))
                 .andDo(print())
     }
 
@@ -107,35 +124,102 @@ class StoreControllerTest(
     @DisplayName("매장 정보 수정")
     fun edit_store_info() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         val requestDto = StoreEditReqDto(
             storeName = "하루필름 강남점",
             storeType = StoreType.STORE,
             storeAddress = "서울 어쩌구 저쩌구",
-            brandId = 11L,
-            storeOperatingTime = "24시간 영업",
-            storePhoneNum = "010-1234-5678",
-            payTypes = listOf(PayType.CARD, PayType.CASH)
+            brandId = brand.id,
+            storeOperatingTime = "24시간 영업. 연중무휴",
+            storePhoneNum = "010-1234-5677",
+            payTypes = listOf(PayType.CASH)
         )
 
         // when & then
         mockMvc.perform(
-            patch("/stores/{storeId}", 1L)
+            patch("/stores/{storeId}", store.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(status().isOk)
             .andDo(print())
+
+        val editedStore = storeRepository.findById(store.id).get()
+        assertEquals(requestDto.storeName, editedStore.name)
+        assertEquals(requestDto.storeType, editedStore.type)
+        assertEquals(requestDto.storeAddress, editedStore.addressInfo.address)
+        assertEquals(requestDto.brandId, editedStore.brand.id)
+        assertEquals(requestDto.storeOperatingTime, editedStore.operatingTime)
+        assertEquals(requestDto.storePhoneNum, editedStore.phoneNumber)
+        assertEquals(requestDto.payTypes, editedStore.getPayTypes().stream().toList())
     }
 
     @Test
     @DisplayName("매장 정보 수정 (필수 항목만 포함)")
     fun edit_store_info_with_only_required_fields() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         val requestDto = StoreEditReqDto(
             storeName = "하루필름 강남점",
             storeType = StoreType.STORE,
             storeAddress = "서울 어쩌구 저쩌구",
-            brandId = 11L,
+            brandId = brand.id,
             storeOperatingTime = null,
             storePhoneNum = null,
             payTypes = null
@@ -143,12 +227,21 @@ class StoreControllerTest(
 
         // when & then
         mockMvc.perform(
-            patch("/stores/{storeId}", 1L)
+            patch("/stores/{storeId}", store.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(status().isOk)
             .andDo(print())
+
+        val editedStore = storeRepository.findById(store.id).get()
+        assertEquals(requestDto.storeName, editedStore.name)
+        assertEquals(requestDto.storeType, editedStore.type)
+        assertEquals(requestDto.storeAddress, editedStore.addressInfo.address)
+        assertEquals(requestDto.brandId, editedStore.brand.id)
+        assertNull(editedStore.operatingTime)
+        assertNull(editedStore.phoneNumber)
+        assertNull(editedStore.payTypes)
     }
 
     @Test

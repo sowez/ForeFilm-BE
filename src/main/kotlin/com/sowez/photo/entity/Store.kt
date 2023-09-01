@@ -69,6 +69,34 @@ class Store(
         }.toSet()
     }
 
+    fun editName(name: String) {
+        this.name = name
+    }
+
+    fun editType(type: StoreType) {
+        this.type = type
+    }
+
+    fun editAddressInfo(addressInfo: Address) {
+        this.addressInfo = addressInfo
+    }
+
+    fun editBrand(brand: Brand) {
+        this.brand = brand
+    }
+
+    fun editOperatingTime(operatingTime: String?) {
+        this.operatingTime = operatingTime
+    }
+
+    fun editPhoneNumber(phoneNumber: String?) {
+        this.phoneNumber = phoneNumber
+    }
+
+    fun editPayTypes(payTypes: List<PayType>?) {
+        this.payTypes = payTypes?.joinToString(",")
+    }
+
 }
 
 @Embeddable
