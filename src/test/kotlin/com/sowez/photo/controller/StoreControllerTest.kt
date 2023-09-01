@@ -3,6 +3,13 @@ package com.sowez.photo.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.req.StoreEditReqDto
+import com.sowez.photo.entity.Address
+import com.sowez.photo.entity.Brand
+import com.sowez.photo.entity.Image
+import com.sowez.photo.entity.Store
+import com.sowez.photo.repository.BrandRepository
+import com.sowez.photo.repository.ImageRepository
+import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
 import org.junit.jupiter.api.DisplayName
@@ -16,12 +23,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 class StoreControllerTest(
     @Autowired val mockMvc: MockMvc,
-    @Autowired val objectMapper: ObjectMapper
+    @Autowired val objectMapper: ObjectMapper,
+    @Autowired val storeRepository: StoreRepository,
+    @Autowired val brandRepository: BrandRepository,
+    @Autowired val imageRepository: ImageRepository
 ) {
 
     @Test
@@ -125,15 +138,45 @@ class StoreControllerTest(
     @Test
     @DisplayName("매장 정보 조회")
     fun get_store_info() {
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         // when & then
         mockMvc.perform(
-            get("/stores/{storeId}", 1L)
+            get("/stores/{storeId}", store.id)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.body.store_name").value("하루필름 강남점"))
             .andExpect(jsonPath("$.body.store_type").value(StoreType.STORE.name))
             .andExpect(jsonPath("$.body.store_address").value("서울 어쩌구 저쩌구"))
-            .andExpect(jsonPath("$.body.brand_id").value(11L))
+            .andExpect(jsonPath("$.body.brand_id").value(brand.id))
             .andExpect(jsonPath("$.body.store_operating_time").value("24시간 영업"))
             .andExpect(jsonPath("$.body.store_phone_num").value("010-1234-5678"))
             .andExpect(jsonPath("$.body.pay_types[0]").value(PayType.CARD.name))

@@ -2,6 +2,8 @@ package com.sowez.photo.service
 
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.res.*
+import com.sowez.photo.error.StoreNotFoundException
+import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
 import org.springframework.data.domain.Page
@@ -9,6 +11,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 interface StoreService {
@@ -22,7 +25,10 @@ interface StoreService {
 }
 
 @Service
-class StoreServiceTestImpl: StoreService {
+@Transactional(readOnly = true)
+class StoreServiceImpl(
+    val storeRepository: StoreRepository
+): StoreService {
     override fun createStore(createDto: StoreCreateReqDto): Long {
         println("StoreServiceTestImpl.createStore")
         return 1L
@@ -33,16 +39,19 @@ class StoreServiceTestImpl: StoreService {
     }
 
     override fun getStoreInfo(storeId: Long): StoreInfoResDto {
-        println("StoreServiceTestImpl.getStoreInfo")
-        return StoreInfoResDto(
-                storeName = "하루필름 강남점",
-                storeType = StoreType.STORE,
-                storeAddress = "서울 어쩌구 저쩌구",
-                brandId = 11L,
-                storeOperatingTime = "24시간 영업",
-                storePhoneNum = "010-1234-5678",
-                payTypes = listOf(PayType.CARD, PayType.CASH)
-        )
+        return storeRepository.findById(storeId)
+            .orElseThrow{ StoreNotFoundException(storeId) }
+            .run {
+                StoreInfoResDto(
+                    storeName = this.name,
+                    storeType = this.type,
+                    storeAddress = this.addressInfo.address,
+                    brandId = this.brand.id,
+                    storeOperatingTime = this.operatingTime,
+                    storePhoneNum = this.phoneNumber,
+                    payTypes = this.getPayTypes().stream().toList()
+                )
+            }
     }
 
     override fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto> {
