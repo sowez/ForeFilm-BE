@@ -1,6 +1,7 @@
 package com.sowez.photo.service
 
 import com.sowez.photo.dto.req.StoreCreateReqDto
+import com.sowez.photo.dto.req.StoreEditReqDto
 import com.sowez.photo.dto.res.*
 import com.sowez.photo.entity.Address
 import com.sowez.photo.entity.Store
@@ -8,8 +9,6 @@ import com.sowez.photo.error.BrandNotFoundException
 import com.sowez.photo.error.StoreNotFoundException
 import com.sowez.photo.repository.BrandRepository
 import com.sowez.photo.repository.StoreRepository
-import com.sowez.photo.type.PayType
-import com.sowez.photo.type.StoreType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -20,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 interface StoreService {
     fun createStore(createDto: StoreCreateReqDto): Long
-    fun editStoreInfo(storeId: Long)
+    fun editStoreInfo(storeId: Long, editDto: StoreEditReqDto)
     fun getStoreInfo(storeId: Long): StoreInfoResDto
     fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto>
     fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto
@@ -53,7 +52,7 @@ class StoreServiceImpl(
         return store.id
     }
 
-    override fun editStoreInfo(storeId: Long) {
+    override fun editStoreInfo(storeId: Long, editDto: StoreEditReqDto) {
         println("StoreServiceTestImpl.editStoreInfo")
     }
 
