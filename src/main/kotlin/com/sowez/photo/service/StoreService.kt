@@ -2,7 +2,11 @@ package com.sowez.photo.service
 
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.res.*
+import com.sowez.photo.entity.Address
+import com.sowez.photo.entity.Store
+import com.sowez.photo.error.BrandNotFoundException
 import com.sowez.photo.error.StoreNotFoundException
+import com.sowez.photo.repository.BrandRepository
 import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
@@ -27,11 +31,26 @@ interface StoreService {
 @Service
 @Transactional(readOnly = true)
 class StoreServiceImpl(
-    val storeRepository: StoreRepository
+    val storeRepository: StoreRepository,
+    val brandRepository: BrandRepository
 ): StoreService {
     override fun createStore(createDto: StoreCreateReqDto): Long {
-        println("StoreServiceTestImpl.createStore")
-        return 1L
+        val brand = brandRepository.findById(createDto.brandId)
+            .orElseThrow { BrandNotFoundException(createDto.brandId) }
+
+        val store = storeRepository.save(
+            Store(
+                name = createDto.storeName,
+                type = createDto.storeType,
+                addressInfo = Address(address = createDto.storeAddress),
+                brand = brand,
+                operatingTime = createDto.storeOperatingTime,
+                phoneNumber = createDto.storePhoneNum,
+                payTypes = createDto.payTypes
+            )
+        )
+
+        return store.id
     }
 
     override fun editStoreInfo(storeId: Long) {

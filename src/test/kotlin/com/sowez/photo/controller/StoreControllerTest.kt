@@ -41,11 +41,28 @@ class StoreControllerTest(
     @DisplayName("새로운 매장 생성")
     fun create_new_store() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
         val requestDto = StoreCreateReqDto(
                 storeName = "하루필름 강남점",
                 storeType = StoreType.STORE,
                 storeAddress = "서울 어쩌구 저쩌구",
-                brandId = 11L,
+                brandId = brand.id,
                 storeOperatingTime = "24시간 영업",
                 storePhoneNum = "010-1234-5678",
                 payTypes = listOf(PayType.CARD, PayType.CASH)
@@ -58,7 +75,6 @@ class StoreControllerTest(
                         .content(objectMapper.writeValueAsString(requestDto))
         )
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.body.created").value(1L))
                 .andDo(print())
     }
 
