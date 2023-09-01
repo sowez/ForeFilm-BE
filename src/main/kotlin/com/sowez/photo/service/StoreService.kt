@@ -4,6 +4,7 @@ import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.req.StoreEditReqDto
 import com.sowez.photo.dto.res.*
 import com.sowez.photo.entity.Address
+import com.sowez.photo.entity.Image
 import com.sowez.photo.entity.Store
 import com.sowez.photo.error.BrandNotFoundException
 import com.sowez.photo.error.StoreNotFoundException
@@ -116,11 +117,15 @@ class StoreServiceImpl(
     }
 
     override fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto {
-        println("StoreServiceTestImpl.getBrandLogoImage")
+        val store = storeRepository.findById(storeId)
+            .orElseThrow { StoreNotFoundException(storeId) }
+        val brand = store.brand
+        val logoImage = brand.logoImage
+
         return StoreBrandLogoImageResDto(
-                brandId = 10L,
-                brandLogoImageId = 100L,
-                imageUrl = "https://www.forefilm.com/images/123"
+                brandId = brand.id,
+                brandLogoImageId = logoImage.id,
+                imageUrl = getImageUrl(logoImage)
         )
     }
 
@@ -134,6 +139,10 @@ class StoreServiceImpl(
                 ),
                 lastImageId = 10L
         )
+    }
+
+    private fun getImageUrl(image: Image): String {
+        return "https://www.forefilm.com" + image.path
     }
 
 }

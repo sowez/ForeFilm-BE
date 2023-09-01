@@ -315,13 +315,43 @@ class StoreControllerTest(
     @Test
     @DisplayName("매장의 브랜드 이미지 조회")
     fun get_store_brand_image() {
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/images/123"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         // when & then
         mockMvc.perform(
-            get("/stores/{storeId}/brand-logo-image", 1L)
+            get("/stores/{storeId}/brand-logo-image", store.id)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.brand_id").value(10L))
-            .andExpect(jsonPath("$.body.brand_logo_image_id").value(100L))
+            .andExpect(jsonPath("$.body.brand_id").value(brand.id))
+            .andExpect(jsonPath("$.body.brand_logo_image_id").value(image.id))
             .andExpect(jsonPath("$.body.image_url").value("https://www.forefilm.com/images/123"))
             .andDo(print())
     }
