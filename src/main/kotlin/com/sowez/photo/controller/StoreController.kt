@@ -5,7 +5,6 @@ import com.sowez.photo.dto.req.StoreEditReqDto
 import com.sowez.photo.dto.res.*
 import com.sowez.photo.service.StoreService
 import jakarta.validation.Valid
-import jakarta.websocket.server.PathParam
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -33,7 +32,7 @@ class StoreController(
         @PathVariable storeId: Long,
         @RequestBody @Valid editDto: StoreEditReqDto
     ): ResponseEntity<ResponseDto<Void>>{
-        storeService.editStoreInfo(storeId)
+        storeService.editStoreInfo(storeId, editDto)
         return ResponseEntity.ok(ResponseDto())
     }
 

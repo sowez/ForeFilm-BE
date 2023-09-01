@@ -3,8 +3,17 @@ package com.sowez.photo.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.req.StoreEditReqDto
+import com.sowez.photo.entity.Address
+import com.sowez.photo.entity.Brand
+import com.sowez.photo.entity.Image
+import com.sowez.photo.entity.Store
+import com.sowez.photo.repository.BrandRepository
+import com.sowez.photo.repository.ImageRepository
+import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,23 +25,46 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 class StoreControllerTest(
     @Autowired val mockMvc: MockMvc,
-    @Autowired val objectMapper: ObjectMapper
+    @Autowired val objectMapper: ObjectMapper,
+    @Autowired val storeRepository: StoreRepository,
+    @Autowired val brandRepository: BrandRepository,
+    @Autowired val imageRepository: ImageRepository
 ) {
 
     @Test
     @DisplayName("새로운 매장 생성")
     fun create_new_store() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
         val requestDto = StoreCreateReqDto(
                 storeName = "하루필름 강남점",
                 storeType = StoreType.STORE,
                 storeAddress = "서울 어쩌구 저쩌구",
-                brandId = 11L,
+                brandId = brand.id,
                 storeOperatingTime = "24시간 영업",
                 storePhoneNum = "010-1234-5678",
                 payTypes = listOf(PayType.CARD, PayType.CASH)
@@ -45,7 +77,6 @@ class StoreControllerTest(
                         .content(objectMapper.writeValueAsString(requestDto))
         )
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.body.created").value(1L))
                 .andDo(print())
     }
 
@@ -53,11 +84,27 @@ class StoreControllerTest(
     @DisplayName("새로운 매장 생성 (필수 항목만 포함)")
     fun create_new_store_with_only_required_fields() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
         val requestDto = StoreCreateReqDto(
                 storeName = "하루필름 강남점",
                 storeType = StoreType.STORE,
                 storeAddress = "서울 어쩌구 저쩌구",
-                brandId = 11L,
+                brandId = brand.id,
                 storeOperatingTime = null,
                 storePhoneNum = null,
                 payTypes = null
@@ -70,7 +117,6 @@ class StoreControllerTest(
                         .content(objectMapper.writeValueAsString(requestDto))
         )
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.body.created").value(1L))
                 .andDo(print())
     }
 
@@ -78,35 +124,102 @@ class StoreControllerTest(
     @DisplayName("매장 정보 수정")
     fun edit_store_info() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         val requestDto = StoreEditReqDto(
             storeName = "하루필름 강남점",
             storeType = StoreType.STORE,
             storeAddress = "서울 어쩌구 저쩌구",
-            brandId = 11L,
-            storeOperatingTime = "24시간 영업",
-            storePhoneNum = "010-1234-5678",
-            payTypes = listOf(PayType.CARD, PayType.CASH)
+            brandId = brand.id,
+            storeOperatingTime = "24시간 영업. 연중무휴",
+            storePhoneNum = "010-1234-5677",
+            payTypes = listOf(PayType.CASH)
         )
 
         // when & then
         mockMvc.perform(
-            patch("/stores/{storeId}", 1L)
+            patch("/stores/{storeId}", store.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(status().isOk)
             .andDo(print())
+
+        val editedStore = storeRepository.findById(store.id).get()
+        assertEquals(requestDto.storeName, editedStore.name)
+        assertEquals(requestDto.storeType, editedStore.type)
+        assertEquals(requestDto.storeAddress, editedStore.addressInfo.address)
+        assertEquals(requestDto.brandId, editedStore.brand.id)
+        assertEquals(requestDto.storeOperatingTime, editedStore.operatingTime)
+        assertEquals(requestDto.storePhoneNum, editedStore.phoneNumber)
+        assertEquals(requestDto.payTypes, editedStore.getPayTypes().stream().toList())
     }
 
     @Test
     @DisplayName("매장 정보 수정 (필수 항목만 포함)")
     fun edit_store_info_with_only_required_fields() {
         // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         val requestDto = StoreEditReqDto(
             storeName = "하루필름 강남점",
             storeType = StoreType.STORE,
             storeAddress = "서울 어쩌구 저쩌구",
-            brandId = 11L,
+            brandId = brand.id,
             storeOperatingTime = null,
             storePhoneNum = null,
             payTypes = null
@@ -114,26 +227,65 @@ class StoreControllerTest(
 
         // when & then
         mockMvc.perform(
-            patch("/stores/{storeId}", 1L)
+            patch("/stores/{storeId}", store.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(status().isOk)
             .andDo(print())
+
+        val editedStore = storeRepository.findById(store.id).get()
+        assertEquals(requestDto.storeName, editedStore.name)
+        assertEquals(requestDto.storeType, editedStore.type)
+        assertEquals(requestDto.storeAddress, editedStore.addressInfo.address)
+        assertEquals(requestDto.brandId, editedStore.brand.id)
+        assertNull(editedStore.operatingTime)
+        assertNull(editedStore.phoneNumber)
+        assertNull(editedStore.payTypes)
     }
 
     @Test
     @DisplayName("매장 정보 조회")
     fun get_store_info() {
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         // when & then
         mockMvc.perform(
-            get("/stores/{storeId}", 1L)
+            get("/stores/{storeId}", store.id)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.body.store_name").value("하루필름 강남점"))
             .andExpect(jsonPath("$.body.store_type").value(StoreType.STORE.name))
             .andExpect(jsonPath("$.body.store_address").value("서울 어쩌구 저쩌구"))
-            .andExpect(jsonPath("$.body.brand_id").value(11L))
+            .andExpect(jsonPath("$.body.brand_id").value(brand.id))
             .andExpect(jsonPath("$.body.store_operating_time").value("24시간 영업"))
             .andExpect(jsonPath("$.body.store_phone_num").value("010-1234-5678"))
             .andExpect(jsonPath("$.body.pay_types[0]").value(PayType.CARD.name))
@@ -163,13 +315,43 @@ class StoreControllerTest(
     @Test
     @DisplayName("매장의 브랜드 이미지 조회")
     fun get_store_brand_image() {
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/images/123"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "서울 어쩌구 저쩌구"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "010-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
         // when & then
         mockMvc.perform(
-            get("/stores/{storeId}/brand-logo-image", 1L)
+            get("/stores/{storeId}/brand-logo-image", store.id)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.brand_id").value(10L))
-            .andExpect(jsonPath("$.body.brand_logo_image_id").value(100L))
+            .andExpect(jsonPath("$.body.brand_id").value(brand.id))
+            .andExpect(jsonPath("$.body.brand_logo_image_id").value(image.id))
             .andExpect(jsonPath("$.body.image_url").value("https://www.forefilm.com/images/123"))
             .andDo(print())
     }
