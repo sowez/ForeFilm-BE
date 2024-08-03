@@ -6,7 +6,6 @@ import com.sowez.photo.type.DownloadType
 data class BoothCreateReqDto(
         val boothCount: Int,
         val boothBackgroundColorName: List<String>,
-        val layoutImagesIds: List<Long>,
         val minPeopleCount: Int,
         val maxPeopleCount: Int,
         val downloadTypes: List<DownloadType>,
@@ -21,7 +20,6 @@ data class BoothCreateReqDto(
 data class BoothEditReqDto(
         val boothCount: Int,
         val boothBackgroundColorName: List<String>,
-        val layoutImagesIds: List<Long>,
         val minPeopleCount: Int,
         val maxPeopleCount: Int,
         val downloadTypes: List<DownloadType>,

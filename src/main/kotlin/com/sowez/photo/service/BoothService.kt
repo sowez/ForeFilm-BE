@@ -30,7 +30,6 @@ class BoothServiceTestImpl : BoothService {
         return BoothInfoResDto(
                 boothCount = 3,
                 boothBackgroundColorName = listOf("분홍", "파랑", "회색"),
-                layoutImageUrls = listOf("forefilm.com"),
                 minPeopleCount = 1,
                 maxPeopleCount = 6,
                 downloadTypes = listOf(DownloadType.QR, DownloadType.APP),

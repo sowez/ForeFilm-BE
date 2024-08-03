@@ -30,7 +30,6 @@ internal class BoothControllerTest(
         val booth = BoothCreateReqDto(
             boothCount = 3,
             boothBackgroundColorName = listOf("분홍", "파랑", "회색"),
-            layoutImagesIds = listOf(1),
             minPeopleCount = 1,
             maxPeopleCount = 6,
             downloadTypes = listOf(DownloadType.QR, DownloadType.APP),
@@ -58,7 +57,6 @@ internal class BoothControllerTest(
         val booth = BoothEditReqDto(
                 boothCount = 4,
                 boothBackgroundColorName = listOf("분홍", "파랑", "회색", "흰색"),
-                layoutImagesIds = listOf(1),
                 minPeopleCount = 1,
                 maxPeopleCount = 6,
                 downloadTypes = listOf(DownloadType.QR, DownloadType.APP),
@@ -90,7 +88,6 @@ internal class BoothControllerTest(
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.booth_background_color_name[0]").value("분홍"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.booth_background_color_name[1]").value("파랑"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.booth_background_color_name[2]").value("회색"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.body.layout_image_urls[0]").value("forefilm.com"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.min_people_count").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.max_people_count").value(6))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body.download_types[0]").value(DownloadType.QR.name))
