@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.req.StoreEditReqDto
 import com.sowez.photo.entity.*
-import com.sowez.photo.repository.BrandRepository
-import com.sowez.photo.repository.ImageRepository
-import com.sowez.photo.repository.ReviewRepository
-import com.sowez.photo.repository.StoreRepository
+import com.sowez.photo.repository.*
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
 import org.junit.jupiter.api.Assertions
@@ -35,7 +32,8 @@ class StoreControllerTest(
     @Autowired val storeRepository: StoreRepository,
     @Autowired val brandRepository: BrandRepository,
     @Autowired val imageRepository: ImageRepository,
-    @Autowired val reviewRepository: ReviewRepository
+    @Autowired val reviewRepository: ReviewRepository,
+    @Autowired val reviewImageRepository: ReviewImageRepository
 ) {
 
     @Test
@@ -412,36 +410,133 @@ class StoreControllerTest(
     @Test
     @DisplayName("매장 사진 리스트 조회")
     fun get_store_images() {
-        // when & then
-        mockMvc.perform(
-            get("/stores/{storeId}/images?limit=20&offset=1", 1L)
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
         )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.images[0].image_id").value(1L))
-            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com/images/1234"))
-            .andExpect(jsonPath("$.body.images[1].image_id").value(5L))
-            .andExpect(jsonPath("$.body.images[1].image_url").value("https://www.forefilm.com/images/4321"))
-            .andExpect(jsonPath("$.body.images[2].image_id").value(10L))
-            .andExpect(jsonPath("$.body.images[2].image_url").value("https://www.forefilm.com/images/43"))
-            .andExpect(jsonPath("$.body.last_image_id").value(10L))
-            .andDo(print())
-    }
 
-    @Test
-    @DisplayName("매장 사진 리스트 조회 (limit, offset 정보 없음)")
-    fun get_store_images_no_param() {
-        // when & then
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "여기저기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "014-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
+        val reviewImages = mutableListOf<Image>()
+        for (i in 0..9) {
+            reviewImages.add(
+                imageRepository.save(
+                    Image(
+                        uuid = UUID.randomUUID().toString(),
+                        originalName = "image$i.jpg",
+                        name = "image$i",
+                        extension = "jpg",
+                        path = "/image$i"
+                    )
+                )
+            )
+        }
+
+        val review1 = reviewRepository.save(
+            Review(
+                store = store,
+                contents = "내용",
+                nickname = "계정",
+                password = "1234",
+                isDeleted = false
+            )
+        )
+        val review2 = reviewRepository.save(
+            Review(
+                store = store,
+                contents = "내용",
+                nickname = "계정",
+                password = "1234",
+                isDeleted = false
+            )
+        )
+        val review3 = reviewRepository.save(
+            Review(
+                store = store,
+                contents = "내용",
+                nickname = "계정",
+                password = "1234",
+                isDeleted = false
+            )
+        )
+
+
+        for (reviewImage in reviewImages.subList(0, 3)) {
+            reviewImageRepository.save(ReviewImage(review1, reviewImage))
+        }
+
+        for (reviewImage in reviewImages.subList(3, 8)) {
+            reviewImageRepository.save(ReviewImage(review2, reviewImage))
+        }
+
+        for (reviewImage in reviewImages.subList(8, 10)) {
+            reviewImageRepository.save(ReviewImage(review3, reviewImage))
+        }
+
+
+        // when & then - limit만 주어진 경우 (최신 사진 limit개 조회)
+        val limit = 3
         mockMvc.perform(
-            get("/stores/{storeId}/images", 1L)
+            get("/stores/{storeId}/images?limit={limit}", store.id, limit)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.images[0].image_id").value(1L))
-            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com/images/1234"))
-            .andExpect(jsonPath("$.body.images[1].image_id").value(5L))
-            .andExpect(jsonPath("$.body.images[1].image_url").value("https://www.forefilm.com/images/4321"))
-            .andExpect(jsonPath("$.body.images[2].image_id").value(10L))
-            .andExpect(jsonPath("$.body.images[2].image_url").value("https://www.forefilm.com/images/43"))
-            .andExpect(jsonPath("$.body.last_image_id").value(10L))
+            .andExpect(jsonPath("$.body.images.size()").value(limit))
+            .andExpect(jsonPath("$.body.images[0].image_id").value(reviewImages[9].id))
+            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com/image9"))
+            .andExpect(jsonPath("$.body.images[1].image_id").value(reviewImages[8].id))
+            .andExpect(jsonPath("$.body.images[1].image_url").value("https://www.forefilm.com/image8"))
+            .andExpect(jsonPath("$.body.images[2].image_id").value(reviewImages[7].id))
+            .andExpect(jsonPath("$.body.images[2].image_url").value("https://www.forefilm.com/image7"))
+            .andExpect(jsonPath("$.body.last_image_id").value(reviewImages[7].id))
+            .andDo(print())
+
+        // when & then - limit, offset 둘다 주어진 경우
+        var offset = reviewImages[7].id
+        mockMvc.perform(
+            get("/stores/{storeId}/images?limit={limit}&offset={offset}", store.id, limit, offset)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body.images.size()").value(limit))
+            .andExpect(jsonPath("$.body.images[0].image_id").value(reviewImages[6].id))
+            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com/image6"))
+            .andExpect(jsonPath("$.body.images[1].image_id").value(reviewImages[5].id))
+            .andExpect(jsonPath("$.body.images[1].image_url").value("https://www.forefilm.com/image5"))
+            .andExpect(jsonPath("$.body.images[2].image_id").value(reviewImages[4].id))
+            .andExpect(jsonPath("$.body.images[2].image_url").value("https://www.forefilm.com/image4"))
+            .andExpect(jsonPath("$.body.last_image_id").value(reviewImages[4].id))
+            .andDo(print())
+
+        // when & then - 사진이 더이상 없는 경우
+        offset = reviewImages[0].id
+        mockMvc.perform(
+            get("/stores/{storeId}/images?limit={limit}&offset={offset}", store.id, limit, offset)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body.images").isEmpty)
+            .andExpect(jsonPath("$.body.last_image_id").value(null))
             .andDo(print())
     }
 
