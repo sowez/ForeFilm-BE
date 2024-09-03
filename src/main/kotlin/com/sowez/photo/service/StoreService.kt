@@ -109,11 +109,15 @@ class StoreServiceImpl(
     }
 
     override fun searchStore(query: String, pageable: Pageable): Page<StoreSearchResDto> {
-        println("StoreServiceTestImpl.searchStore")
-        return PageImpl(listOf(
-                StoreSearchResDto(storeId = 1L, storeName = "하루필름 강남점", storeAddress = "여기저기", reviewCnt = 101),
-                StoreSearchResDto(storeId = 4L, storeName = "하루필름 강남2호점", storeAddress = "요기조기", reviewCnt = 79),
-        ), PageRequest.of(1, 10), 2)
+        return storeRepository.findByNameContaining(query, pageable)
+            .map { store ->
+                StoreSearchResDto(
+                    storeId = store.id,
+                    storeName = store.name,
+                    storeAddress = store.addressInfo.address,
+                    reviewCnt = store.getReviewCount()
+                )
+            }
     }
 
     override fun getBrandLogoImage(storeId: Long): StoreBrandLogoImageResDto {

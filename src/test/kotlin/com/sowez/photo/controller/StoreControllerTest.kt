@@ -3,12 +3,10 @@ package com.sowez.photo.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sowez.photo.dto.req.StoreCreateReqDto
 import com.sowez.photo.dto.req.StoreEditReqDto
-import com.sowez.photo.entity.Address
-import com.sowez.photo.entity.Brand
-import com.sowez.photo.entity.Image
-import com.sowez.photo.entity.Store
+import com.sowez.photo.entity.*
 import com.sowez.photo.repository.BrandRepository
 import com.sowez.photo.repository.ImageRepository
+import com.sowez.photo.repository.ReviewRepository
 import com.sowez.photo.repository.StoreRepository
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
@@ -36,7 +34,8 @@ class StoreControllerTest(
     @Autowired val objectMapper: ObjectMapper,
     @Autowired val storeRepository: StoreRepository,
     @Autowired val brandRepository: BrandRepository,
-    @Autowired val imageRepository: ImageRepository
+    @Autowired val imageRepository: ImageRepository,
+    @Autowired val reviewRepository: ReviewRepository
 ) {
 
     @Test
@@ -296,19 +295,73 @@ class StoreControllerTest(
     @Test
     @DisplayName("매장 검색")
     fun search_store() {
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store1 = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "여기저기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "014-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
+        val store2 = storeRepository.save(
+            Store(
+                name = "하루필름 강남2호점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "요기조기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "011-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.SIMPLE)
+            )
+        )
+
+        storeRepository.save(
+            Store(
+                name = "하루필름 잠실점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "요기조기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "011-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.SIMPLE)
+            )
+        )
+
         // when & then
         mockMvc.perform(
             get("/stores?q=강남")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.content[0].store_id").value(1))
+            .andExpect(jsonPath("$.body.content[0].store_id").value(store1.id))
             .andExpect(jsonPath("$.body.content[0].store_name").value("하루필름 강남점"))
             .andExpect(jsonPath("$.body.content[0].store_address").value("여기저기"))
-            .andExpect(jsonPath("$.body.content[0].review_cnt").value(101))
-            .andExpect(jsonPath("$.body.content[1].store_id").value(4))
+            .andExpect(jsonPath("$.body.content[0].review_cnt").isNumber)
+            .andExpect(jsonPath("$.body.content[1].store_id").value(store2.id))
             .andExpect(jsonPath("$.body.content[1].store_name").value("하루필름 강남2호점"))
             .andExpect(jsonPath("$.body.content[1].store_address").value("요기조기"))
-            .andExpect(jsonPath("$.body.content[1].review_cnt").value(79))
+            .andExpect(jsonPath("$.body.content[1].review_cnt").isNumber)
             .andDo(print())
     }
 
