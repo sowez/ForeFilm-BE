@@ -8,10 +8,8 @@ import com.sowez.photo.entity.Image
 import com.sowez.photo.entity.Store
 import com.sowez.photo.error.BrandNotFoundException
 import com.sowez.photo.error.StoreNotFoundException
-import com.sowez.photo.repository.BrandRepository
-import com.sowez.photo.repository.StoreRepository
+import com.sowez.photo.repository.*
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -32,7 +30,10 @@ interface StoreService {
 @Transactional(readOnly = true)
 class StoreServiceImpl(
     val storeRepository: StoreRepository,
-    val brandRepository: BrandRepository
+    val brandRepository: BrandRepository,
+    val reviewRepository: ReviewRepository,
+    val reviewImageRepository: ReviewImageRepository,
+    val imageRepository: ImageRepository
 ): StoreService {
 
     @Transactional
@@ -134,15 +135,17 @@ class StoreServiceImpl(
     }
 
     override fun getStoreImages(storeId: Long, limit: Int, offset: Int?): StoreImagesResDto {
-        println("StoreServiceTestImpl.getStoreImages(storeId=$storeId, limit=$limit, offset=$offset)")
-        return StoreImagesResDto(
-                images = listOf(
-                        StoreImageResDto(imageId = 1L, imageUrl = "https://www.forefilm.com/images/1234"),
-                        StoreImageResDto(imageId = 5L, imageUrl = "https://www.forefilm.com/images/4321"),
-                        StoreImageResDto(imageId = 10L, imageUrl = "https://www.forefilm.com/images/43")
-                ),
-                lastImageId = 10L
-        )
+        val imageIds = if (offset != null){
+            reviewImageRepository.findNextImageIds(storeId, offset, PageRequest.of(0, limit))
+        } else {
+            reviewImageRepository.findNewestImageIds(storeId, PageRequest.of(0, limit))
+        }
+
+        val imageResDtos = imageRepository.findAllByIdInOrderByIdDesc(imageIds)
+            .map { image -> StoreImageResDto(imageId = image.id, imageUrl = getImageUrl(image)) }
+        val lastId = if(imageResDtos.isNotEmpty()) imageResDtos.last().imageId else null
+
+        return StoreImagesResDto(imageResDtos, lastId)
     }
 
     private fun getImageUrl(image: Image): String {
