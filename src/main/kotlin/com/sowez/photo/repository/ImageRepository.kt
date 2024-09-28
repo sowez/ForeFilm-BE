@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ImageRepository: JpaRepository<Image, Long> {
+    fun findAllByIdInOrderByIdDesc(ids: List<Long>): List<Image>
 }

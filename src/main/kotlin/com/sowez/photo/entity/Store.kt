@@ -56,6 +56,9 @@ class Store(
     var boothInfo: BoothInfo? = boothInfo
         protected set
 
+    @OneToMany(mappedBy = "store")
+    private var reviews: MutableList<Review> = mutableListOf()
+
     fun addBoothInfo(boothInfo: BoothInfo?) {
         this.boothInfo = boothInfo
     }
@@ -67,6 +70,10 @@ class Store(
         return payTypeStrings.map {
             PayType.valueOf(it)
         }.toSet()
+    }
+
+    fun getReviewCount(): Int {
+        return reviews.count()
     }
 
     fun editName(name: String) {
