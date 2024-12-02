@@ -193,26 +193,26 @@ class ReviewControllerTest(
             )
         )
 
-        val reviewTag1 = reviewTagRepository.save(
+        reviewTagRepository.save(
             ReviewTag(
                 review = review,
                 tag = tag1
             )
         )
-        val reviewTag2 = reviewTagRepository.save(
+        reviewTagRepository.save(
             ReviewTag(
                 review = review,
                 tag = tag2
             )
         )
 
-        val reviewImage1 = reviewImageRepository.save(
+        reviewImageRepository.save(
             ReviewImage(
                 review = review,
                 image = image1
             )
         )
-        val reviewImage2 = reviewImageRepository.save(
+        reviewImageRepository.save(
             ReviewImage(
                 review = review,
                 image = image2
@@ -234,6 +234,141 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.review_tags[1].tag_emoji_name").value(tag2.emojiName))
             .andExpect(jsonPath("$.body.review_images[0].image_id").value(image1.id))
             .andExpect(jsonPath("$.body.review_images[1].image_id").value(image2.id))
+            .andDo(print())
+    }
+
+    @Test
+    @DisplayName("스토어 리뷰 조회")
+    fun get_reviews(){
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "여기저기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "014-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
+        val tag1 = tagRepository.save(
+            Tag(
+                contents = "깔끔해요",
+                emojiName = "clean"
+            )
+        )
+        val tag2 = tagRepository.save(
+            Tag(
+                contents = "핫해요",
+                emojiName = "hot"
+            )
+        )
+
+        val image1 = imageRepository.save(
+            Image(
+                uuid = "uuid1",
+                originalName = "originalName1",
+                name = "name1",
+                extension = "jpg",
+                path = "path1"
+            )
+        )
+        val image2 = imageRepository.save(
+            Image(
+                uuid = "uuid1",
+                originalName = "originalName1",
+                name = "name1",
+                extension = "jpg",
+                path = "path1"
+            )
+        )
+
+        val review1 = reviewRepository.save(
+            Review(
+                store = store,
+                nickname = "eumji",
+                password = "123",
+                contents = "review1",
+                isDeleted = false,
+            )
+        )
+        val review2 = reviewRepository.save(
+            Review(
+                store = store,
+                nickname = "eumji",
+                password = "123",
+                contents = "review2",
+                isDeleted = false,
+            )
+        )
+
+        reviewTagRepository.save(
+            ReviewTag(
+                review = review1,
+                tag = tag1
+            )
+        )
+        reviewTagRepository.save(
+            ReviewTag(
+                review = review2,
+                tag = tag2
+            )
+        )
+
+        reviewImageRepository.save(
+            ReviewImage(
+                review = review1,
+                image = image1
+            )
+        )
+        reviewImageRepository.save(
+            ReviewImage(
+                review = review2,
+                image = image2
+            )
+        )
+
+        // when & then
+        mockMvc.perform(
+            get("/reviews/{storeId}/reviews", store.id)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body.reviews[1].review_id").value(review1.id))
+            .andExpect(jsonPath("$.body.reviews[1].review_nickname").value(review1.nickname))
+            .andExpect(jsonPath("$.body.reviews[1].review_contents").value(review1.contents))
+            .andExpect(jsonPath("$.body.reviews[1].review_tags[0].tag_id").value(tag1.id))
+            .andExpect(jsonPath("$.body.reviews[1].review_tags[0].tag_contents").value(tag1.contents))
+            .andExpect(jsonPath("$.body.reviews[1].review_tags[0].tag_emoji_name").value(tag1.emojiName))
+            .andExpect(jsonPath("$.body.reviews[1].thumbnail_image_url").value("https://www.forefilm.com"+image1.path))
+            .andExpect(jsonPath("$.body.reviews[1].image_count").value(1))
+            .andExpect(jsonPath("$.body.reviews[0].review_id").value(review2.id))
+            .andExpect(jsonPath("$.body.reviews[0].review_nickname").value(review2.nickname))
+            .andExpect(jsonPath("$.body.reviews[0].review_contents").value(review2.contents))
+            .andExpect(jsonPath("$.body.reviews[0].review_tags[0].tag_id").value(tag2.id))
+            .andExpect(jsonPath("$.body.reviews[0].review_tags[0].tag_contents").value(tag2.contents))
+            .andExpect(jsonPath("$.body.reviews[0].review_tags[0].tag_emoji_name").value(tag2.emojiName))
+            .andExpect(jsonPath("$.body.reviews[0].thumbnail_image_url").value("https://www.forefilm.com"+image2.path))
+            .andExpect(jsonPath("$.body.reviews[0].image_count").value(1))
+            .andExpect(jsonPath("$.body.last_review_id").value(1))
             .andDo(print())
     }
 
@@ -276,8 +411,8 @@ class ReviewControllerTest(
                 imageRepository.save(
                     Image(
                         uuid = UUID.randomUUID().toString(),
-                        originalName = "image$i.jpg",
-                        name = "image$i",
+                        originalName = "original_image$i",
+                        name = "name_image$i",
                         extension = "jpg",
                         path = "/image$i"
                     )
@@ -313,7 +448,6 @@ class ReviewControllerTest(
             )
         )
 
-
         for (reviewImage in reviewImages.subList(0, 3)) {
             reviewImageRepository.save(ReviewImage(review1, reviewImage))
         }
@@ -328,50 +462,114 @@ class ReviewControllerTest(
 
         // when & then
         mockMvc.perform(
-            get("/stores/{store_id}/review-images", 1L)
+            get("/reviews/{store_id}/images", store.id)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.images[0].image_id").value(1))
-            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com/images/1"))
-            .andExpect(jsonPath("$.body.images[1].image_id").value(2))
-            .andExpect(jsonPath("$.body.images[1].image_url").value("https://www.forefilm.com/images/2"))
-            .andDo(print())
-    }
-
-    @Test
-    @DisplayName("스토어 리뷰 조회")
-    fun get_reviews(){
-        // when & then
-        mockMvc.perform(
-            get("/stores/{storeId}/reviews?limit=20&offset=1", 1L)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.reviews[0].review_id").value(1))
-            .andExpect(jsonPath("$.body.reviews[0].profile_image_url").value("profileUrl"))
-            .andExpect(jsonPath("$.body.reviews[0].created_datetime").value(LocalDateTime.of(2023,8,12,13,35, 1).toString()))
-            .andExpect(jsonPath("$.body.reviews[0].contents").value("content"))
-            .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_id").value(1))
-            .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_contents").value("1"))
-            .andExpect(jsonPath("$.body.reviews[0].tags[0].tag_emoji_name").value("1"))
-            .andExpect(jsonPath("$.body.reviews[0].thumbnail_image_url").value("url"))
-            .andExpect(jsonPath("$.body.reviews[0].image_count").value(1))
-            .andExpect(jsonPath("$.body.last_review_id").value(10))
+            .andExpect(jsonPath("$.body.images[0].image_id").value(reviewImages[9].id))
+            .andExpect(jsonPath("$.body.images[0].image_url").value("https://www.forefilm.com"+reviewImages[9].path))
+            .andExpect(jsonPath("$.body.images[9].image_id").value(reviewImages[0].id))
+            .andExpect(jsonPath("$.body.images[9].image_url").value("https://www.forefilm.com"+reviewImages[0].path))
             .andDo(print())
     }
 
     @Test
     @DisplayName("스토어 태그 조회")
     fun get_review_tags(){
+        // given
+        val image = imageRepository.save(
+            Image(
+                uuid = UUID.randomUUID().toString(),
+                originalName = "image.jpg",
+                name = "image",
+                extension = "jpg",
+                path = "/image"
+            )
+        )
+
+        val brand = brandRepository.save(
+            Brand(
+                logoImage = image,
+                name = "하루필름"
+            )
+        )
+
+        val store = storeRepository.save(
+            Store(
+                name = "하루필름 강남점",
+                type = StoreType.STORE,
+                addressInfo = Address(address = "여기저기"),
+                brand = brand,
+                operatingTime = "24시간 영업",
+                phoneNumber = "014-1234-5678",
+                payTypes = listOf(PayType.CARD, PayType.CASH)
+            )
+        )
+
+        val tag1 = tagRepository.save(
+            Tag(
+                contents = "깔끔해요",
+                emojiName = "clean"
+            )
+        )
+        val tag2 = tagRepository.save(
+            Tag(
+                contents = "핫해요",
+                emojiName = "hot"
+            )
+        )
+
+        val review1 = reviewRepository.save(
+            Review(
+                store = store,
+                nickname = "eumji",
+                password = "123",
+                contents = "review1",
+                isDeleted = false,
+            )
+        )
+        val review2 = reviewRepository.save(
+            Review(
+                store = store,
+                nickname = "eumji",
+                password = "123",
+                contents = "review2",
+                isDeleted = false,
+            )
+        )
+
+        reviewTagRepository.save(
+            ReviewTag(
+                review = review1,
+                tag = tag1
+            )
+        )
+        reviewTagRepository.save(
+            ReviewTag(
+                review = review1,
+                tag = tag2
+            )
+        )
+        reviewTagRepository.save(
+            ReviewTag(
+                review = review2,
+                tag = tag2
+            )
+        )
+
         // when && then
         mockMvc.perform(
-            get("/stores/{storeId}/tags",1L)
+            get("/reviews/{storeId}/tags",store.id)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body.total_cnt").value(10))
-            .andExpect(jsonPath("$.body.tags[0].tag_id").value(1))
-            .andExpect(jsonPath("$.body.tags[0].tag_contents").value("1"))
-            .andExpect(jsonPath("$.body.tags[0].tag_emoji_name").value("1"))
+            .andExpect(jsonPath("$.body.total_cnt").value(3))
+            .andExpect(jsonPath("$.body.tags[0].tag_id").value(tag1.id))
+            .andExpect(jsonPath("$.body.tags[0].tag_contents").value(tag1.contents))
+            .andExpect(jsonPath("$.body.tags[0].tag_emoji_name").value(tag1.emojiName))
             .andExpect(jsonPath("$.body.tags[0].tag_count").value(1))
+            .andExpect(jsonPath("$.body.tags[1].tag_id").value(tag2.id))
+            .andExpect(jsonPath("$.body.tags[1].tag_contents").value(tag2.contents))
+            .andExpect(jsonPath("$.body.tags[1].tag_emoji_name").value(tag2.emojiName))
+            .andExpect(jsonPath("$.body.tags[1].tag_count").value(2))
             .andDo(print())
     }
 }
