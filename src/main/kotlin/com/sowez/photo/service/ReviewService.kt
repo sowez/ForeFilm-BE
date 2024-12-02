@@ -7,15 +7,17 @@ import com.sowez.photo.error.ReviewNotFoundException
 import com.sowez.photo.error.StoreNotFoundException
 import com.sowez.photo.error.TagNotFoundException
 import com.sowez.photo.repository.*
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.util.*
 
 @Service
 interface ReviewService {
     fun createReview(createDto: ReviewCreateReqDto): Long
     fun getSingleReview(reviewId: Long): SingleReviewResDto
-    fun getReviewImages(storeId: Long): ReviewImagesResDto
     fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto
+    fun getReviewImages(storeId: Long, limit: Int): ReviewImagesResDto
     fun getReviewTags(storeId: Long): ReviewTagsResDto
 }
 
@@ -43,7 +45,7 @@ class ReviewServiceTestImpl(
         )
 
         if (createDto.reviewTagIds != null) { // tag id로 tag 객체 찾기//
-            for (i in 0 until createDto.reviewTagIds.size) {
+            for (i in createDto.reviewTagIds.indices) {
                 val tag = tagRepository.findById(createDto.reviewTagIds[i])
                     .orElseThrow { TagNotFoundException(createDto.reviewTagIds[i]) }
                 reviewTagRepository.save(
@@ -57,10 +59,10 @@ class ReviewServiceTestImpl(
 
         val reviewId = review.id
         if(createDto.reviewImages != null) {
-            for (i in 0 until createDto.reviewImages.size) {
+            for (i in createDto.reviewImages.indices) {
                 val image = imageRepository.save(
                     Image(
-                        uuid = "uuid_$reviewId"+"_$i",
+                        uuid = UUID.randomUUID().toString(),
                         originalName = createDto.reviewImages[i],
                         name = "name_$reviewId"+"_$i",
                         extension = "jpeg",
@@ -81,8 +83,6 @@ class ReviewServiceTestImpl(
     }
 
     override fun getSingleReview(reviewId: Long): SingleReviewResDto {
-        println("ReviewServiceTestImpl.getSingleReview")
-
         val review = reviewRepository.findById(reviewId)
             .orElseThrow{ ReviewNotFoundException(reviewId) }
         val tagIds = reviewTagRepository.findTagIdsWithReviewId(reviewId)
@@ -90,7 +90,7 @@ class ReviewServiceTestImpl(
         val tagResDtos = tagRepository.findAllById(tagIds)
             .map{ tag -> TagResDto(tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName)}
         val imageResDtos = imageRepository.findAllById(imageIds)
-            .map{ image -> ReviewImageResDto(imageId = image.id, imageUrl = image.path)}
+            .map{ image -> ReviewImageResDto(imageId = image.id, imageUrl = getImageUrl(image))}
 
         return SingleReviewResDto(
             reviewNickname = review.nickname,
@@ -101,47 +101,84 @@ class ReviewServiceTestImpl(
         )
     }
 
-    override fun getReviewImages(storeId: Long): ReviewImagesResDto {
-        println("ReviewServiceTestImpl.getReviewImages")
-        return ReviewImagesResDto(
-            listOf(
-                ReviewImageResDto(1, "https://www.forefilm.com/images/1"),
-                ReviewImageResDto(2, "https://www.forefilm.com/images/2")
-            )
-        )
+    override fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto {
+        val reviewIds = if (offset != null){
+            reviewRepository.findNextReviewIds(storeId, offset, PageRequest.of(0, limit))
+        } else {
+            reviewRepository.findNewestReviewIds(storeId, PageRequest.of(0, limit))
+        }
 
+        val reviews = reviewRepository.findAllByIdInOrderByIdDesc(reviewIds)
+        val reviewResDtos = mutableListOf<ReviewResDto>()
+        for (review in reviews) {
+            val tagIds = reviewTagRepository.findTagIdsWithReviewId(review.id)
+            val imageIds = reviewImageRepository.findImageIdsWithReviewId(review.id)
+            val tagResDtos = tagRepository.findAllById(tagIds)
+                .map{ tag -> TagResDto(tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName)}
+            val imageResDtos = imageRepository.findAllById(imageIds)
+                .map{ image -> ReviewImageResDto(imageId = image.id, imageUrl = getImageUrl(image))}
+            val thumbnailImageUrl = if(imageResDtos.isNotEmpty()) imageResDtos.first().imageUrl else null
+            val imageCount = imageResDtos.size
+            val reviewResDto = ReviewResDto(reviewId = review.id, reviewNickname = review.nickname,
+                reviewContents = review.contents, reviewCreatedDatetime = review.createdDatetime,
+                reviewTags = tagResDtos, thumbnailImageUrl = thumbnailImageUrl, imageCount = imageCount)
+            reviewResDtos += reviewResDto
+        }
+        val lastId = if(reviewResDtos.isNotEmpty()) reviewResDtos.last().reviewId else null
+
+        return ReviewsResDto(reviewResDtos, lastId)
     }
 
-    override fun getReviews(storeId: Long, limit: Int, offset: Int?): ReviewsResDto {
-        println("ReviewServiceTestImpl.getReviews")
-        return ReviewsResDto(
-            listOf(
-                ReviewResDto(
-                    1,
-                    "profileUrl",
-                    "content",
-                    LocalDateTime.of(2023,8,12,13,35, 1),
-                    listOf(
-                        TagResDto(1,"1", "1")
-                    ),
-                    "url",
-                    1
-                )
-            ),
-            lastReviewId = 10
-        )
+    override fun getReviewImages(storeId: Long, limit: Int): ReviewImagesResDto {
+        val imageIds = reviewImageRepository.findNewestImageIds(storeId, PageRequest.of(0, limit))
+        val imageResDtos = imageRepository.findAllByIdInOrderByIdDesc(imageIds)
+            .map { image -> ReviewImageResDto(imageId = image.id, imageUrl = getImageUrl(image)) }
+
+        return ReviewImagesResDto(imageResDtos)
     }
 
     override fun getReviewTags(storeId: Long): ReviewTagsResDto {
         println("ReviewServiceTestImpl.getReviewTags")
-        return ReviewTagsResDto(
-            totalCnt = 10,
-            tags = listOf(
-                ReviewTagResDto(
-                    1,"1", "1", 1
+        val tagIds = reviewTagRepository.findTagIdsWithStoreId(storeId)
+        val totalCnt = tagIds.size
+
+        var lastTagId = 0L
+        var lastTagCnt = 0
+        val reviewTagResDtos = mutableListOf<ReviewTagResDto>()
+        for (i in tagIds.indices) {
+            if(lastTagId != tagIds[i]) {
+                if(lastTagId != 0L) {
+                    val tag = tagRepository.findById(lastTagId)
+                        .orElseThrow { TagNotFoundException(lastTagId) }
+                    val reviewTagResDto = ReviewTagResDto(
+                        tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName, tagCount = lastTagCnt
+                    )
+                    reviewTagResDtos += reviewTagResDto
+                }
+                lastTagId = tagIds[i]
+                lastTagCnt = 0
+            }
+            lastTagCnt ++
+        }
+        if(lastTagCnt != 0) {
+            if(lastTagId != 0L) {
+                val tag = tagRepository.findById(lastTagId)
+                    .orElseThrow { TagNotFoundException(lastTagId) }
+                val reviewTagResDto = ReviewTagResDto(
+                    tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName, tagCount = lastTagCnt
                 )
-            )
+                reviewTagResDtos += reviewTagResDto
+            }
+        }
+
+        return ReviewTagsResDto(
+            totalCnt = totalCnt,
+            tags = reviewTagResDtos
         )
+    }
+
+    private fun getImageUrl(image: Image): String {
+        return "https://www.forefilm.com" + image.path
     }
 
 }

@@ -20,19 +20,19 @@ data class ReviewResDto(
     val reviewContents: String,
     val reviewCreatedDatetime: LocalDateTime,
     val reviewTags: List<TagResDto>? = mutableListOf(),
-    val thumbnailImageUrl: String,
+    val thumbnailImageUrl: String? = null,
     val imageCount: Int,
 ): SnakeCaseDto()
 
 data class ReviewsResDto (
     val reviews: List<ReviewResDto> = mutableListOf(),
-    val lastReviewId: Long
+    val lastReviewId: Long? = null
 ): SnakeCaseDto()
 
 
 // Count가 포함된 review tag
 data class ReviewTagResDto (
-    val tagId: Int,
+    val tagId: Long,
     val tagContents: String,
     val tagEmojiName: String,
     val tagCount: Int
