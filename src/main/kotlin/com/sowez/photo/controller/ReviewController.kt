@@ -7,16 +7,21 @@ import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 @RestController
-class ReviewController (val reviewService: ReviewService) {
-    @PostMapping("/reviews")
+@RequestMapping("/reviews")
+class ReviewController (
+    val reviewService: ReviewService
+) {
+    @PostMapping
     fun createReview (
         @RequestBody @Valid createDto:ReviewCreateReqDto
     ): ResponseEntity<ResponseDto<CreateResponseDto>>{
         val newReviewId = reviewService.createReview(createDto)
-        return ResponseEntity.ok(ResponseDto(body = CreateResponseDto(newReviewId)))
+        return ResponseEntity.ok(
+            ResponseDto(body = CreateResponseDto(newReviewId))
+        )
     }
 
-    @GetMapping("/reviews/{reviewId}")
+    @GetMapping("/{reviewId}")
     fun getSingleReview (
         @PathVariable reviewId: Long
     ): ResponseEntity<ResponseDto<SingleReviewResDto>>{
@@ -24,7 +29,7 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{storeId}/review-images")
+    @GetMapping("/{storeId}/review-images")
     fun getReviewImages (
         @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewImagesResDto>>{
@@ -32,7 +37,7 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{storeId}/reviews")
+    @GetMapping("/{storeId}/reviews")
     fun getReviews (
         @PathVariable storeId: Long,
         @RequestParam(defaultValue = "10") limit: Int,
@@ -42,7 +47,7 @@ class ReviewController (val reviewService: ReviewService) {
         return ResponseEntity.ok(ResponseDto(body = reviewResponse))
     }
 
-    @GetMapping("/stores/{storeId}/tags")
+    @GetMapping("/{storeId}/tags")
     fun getReviewTags (
         @PathVariable storeId: Long
     ): ResponseEntity<ResponseDto<ReviewTagsResDto>>{

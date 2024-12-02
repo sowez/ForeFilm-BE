@@ -1,28 +1,27 @@
 package com.sowez.photo.dto.res
 import com.sowez.photo.dto.SnakeCaseDto
-import java.time.LocalDate
+import com.sowez.photo.entity.Tag
 import java.time.LocalDateTime
-import java.util.Date
+import java.util.*
 
 // 리뷰 사진 조회 시 보여지는 Review
-class SingleReviewResDto(
+data class SingleReviewResDto(
     val reviewNickname: String,
-    val reviewProfile: String,
-    val reviewCreatedDatetime: LocalDateTime,
     val reviewContents: String,
-    val tags: List<TagResDto> = mutableListOf(),
-    val imageUrl: String
+    val reviewCreatedDatetime: LocalDateTime,
+    val reviewTags: List<TagResDto>? = mutableListOf(),
+    val reviewImages: List<ReviewImageResDto>? = mutableListOf(),
 ): SnakeCaseDto()
 
 // 리뷰 리스트를 위한 Review
-class ReviewResDto (
+data class ReviewResDto(
     val reviewId: Long,
-    val profileImageUrl: String,
-    val createdDatetime: LocalDateTime,
-    val contents: String,
-    val tags: List<TagResDto> = mutableListOf(),
+    val reviewNickname: String,
+    val reviewContents: String,
+    val reviewCreatedDatetime: LocalDateTime,
+    val reviewTags: List<TagResDto>? = mutableListOf(),
     val thumbnailImageUrl: String,
-    val imageCount: Int
+    val imageCount: Int,
 ): SnakeCaseDto()
 
 data class ReviewsResDto (
@@ -30,14 +29,6 @@ data class ReviewsResDto (
     val lastReviewId: Long
 ): SnakeCaseDto()
 
-data class ReviewImageResDto (
-    val imageId: Long,
-    val imageUrl: String
-): SnakeCaseDto()
-
-data class ReviewImagesResDto (
-    val images: List<ReviewImageResDto> = mutableListOf()
-): SnakeCaseDto()
 
 // Count가 포함된 review tag
 data class ReviewTagResDto (
@@ -53,3 +44,11 @@ data class ReviewTagsResDto (
     val tags: List<ReviewTagResDto> = mutableListOf()
 ): SnakeCaseDto()
 
+data class ReviewImageResDto (
+    val imageId: Long,
+    val imageUrl: String
+): SnakeCaseDto()
+
+data class ReviewImagesResDto (
+    val images: List<ReviewImageResDto> = mutableListOf()
+): SnakeCaseDto()
