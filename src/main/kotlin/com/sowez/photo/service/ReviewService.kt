@@ -85,8 +85,8 @@ class ReviewServiceTestImpl(
     override fun getSingleReview(reviewId: Long): SingleReviewResDto {
         val review = reviewRepository.findById(reviewId)
             .orElseThrow{ ReviewNotFoundException(reviewId) }
-        val tagIds = reviewTagRepository.findTagIdsWithReviewId(reviewId)
-        val imageIds = reviewImageRepository.findImageIdsWithReviewId(reviewId)
+        val tagIds = reviewTagRepository.findTagIdsByReviewId(reviewId)
+        val imageIds = reviewImageRepository.findImageIdsByReviewId(reviewId)
         val tagResDtos = tagRepository.findAllById(tagIds)
             .map{ tag -> TagResDto(tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName)}
         val imageResDtos = imageRepository.findAllById(imageIds)
@@ -111,8 +111,8 @@ class ReviewServiceTestImpl(
         val reviews = reviewRepository.findAllByIdInOrderByIdDesc(reviewIds)
         val reviewResDtos = mutableListOf<ReviewResDto>()
         for (review in reviews) {
-            val tagIds = reviewTagRepository.findTagIdsWithReviewId(review.id)
-            val imageIds = reviewImageRepository.findImageIdsWithReviewId(review.id)
+            val tagIds = reviewTagRepository.findTagIdsByReviewId(review.id)
+            val imageIds = reviewImageRepository.findImageIdsByReviewId(review.id)
             val tagResDtos = tagRepository.findAllById(tagIds)
                 .map{ tag -> TagResDto(tagId = tag.id, tagContents = tag.contents, tagEmojiName = tag.emojiName)}
             val imageResDtos = imageRepository.findAllById(imageIds)
@@ -139,7 +139,7 @@ class ReviewServiceTestImpl(
 
     override fun getReviewTags(storeId: Long): ReviewTagsResDto {
         println("ReviewServiceTestImpl.getReviewTags")
-        val tagIds = reviewTagRepository.findTagIdsWithStoreId(storeId)
+        val tagIds = reviewTagRepository.findTagIdsByStoreId(storeId)
         val totalCnt = tagIds.size
 
         var lastTagId = 0L

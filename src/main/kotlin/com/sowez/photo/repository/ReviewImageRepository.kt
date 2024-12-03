@@ -26,6 +26,6 @@ interface ReviewImageRepository: JpaRepository<ReviewImage, Long> {
     @Query(value = "select ri.image.id " +
         "from ReviewImage ri join ri.review r " +
         "where r.id = :reviewId")
-    fun findImageIdsWithReviewId(reviewId: Long): List<Long>
+    fun findImageIdsByReviewId(reviewId: Long): List<Long>
 
 }
