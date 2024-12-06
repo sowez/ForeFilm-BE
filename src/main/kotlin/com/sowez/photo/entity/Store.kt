@@ -8,12 +8,14 @@ import java.time.LocalDateTime
 
 @Entity
 class Store(
-    name: String, type: StoreType, brand: Brand,
-    addressInfo: Address,
-    phoneNumber: String? = null,
-    operatingTime: String? = null,
-    payTypes: List<PayType>? = null,
-    boothInfo: BoothInfo? = null
+        name: String,
+        type: StoreType,
+        brand: Brand,
+        addressInfo: Address,
+        phoneNumber: String? = null,
+        operatingTime: String? = null,
+        payTypes: List<PayType>? = null,
+        boothInfo: BoothInfo? = null
 ) {
 
     @Id
@@ -118,28 +120,23 @@ data class Address(
 
 @Embeddable
 data class BoothInfo(
-    @Column var boothCount: Int? = null,
-    @Column var minPeopleCount: Int? = null,
-    @Column var maxPeopleCount: Int? = null,
-    @Column var downloadPeriod: String? = null,
-    @Column var isReshoot: Boolean? = null,
-    @Column var isRemote: Boolean? = null,
-    @Column var isCurlingIron: Boolean? = null,
-    @Column var isEnvelope: Boolean? = null,
-    @Column var isFootrest: Boolean? = null
-) {
-    @Column var downloadTypes: String? = null
+        @Column var boothCount: Int? = null,
+        @Column var minPeopleCount: Int? = null,
+        @Column var maxPeopleCount: Int? = null,
+        @Column var downloadTypes: String? = null,
+        @Column var downloadPeriod: String? = null,
+        @Column var isReshoot: Boolean? = null,
+        @Column var isRemote: Boolean? = null,
+        @Column var isCurlingIron: Boolean? = null,
+        @Column var isEnvelope: Boolean? = null,
+        @Column var isFootrest: Boolean? = null
 
-    fun setDownloadTypes(downloadTypes: Set<DownloadType>?) {
-        this.downloadTypes = downloadTypes?.joinToString(",")
+) {
+    fun getDownloadTypes(): List<DownloadType>? {
+        return downloadTypes?.split(",")?.map { DownloadType.valueOf(it) }
     }
 
-    fun getDownloadTypes(): Set<DownloadType> {
-        val downloadTypeStrings: MutableSet<String> = mutableSetOf()
-        this.downloadTypes?.split(",")
-            ?.let { downloadTypeStrings.addAll(it) }
-        return downloadTypeStrings.map {
-            DownloadType.valueOf(it)
-        }.toSet()
+    fun setDownloadTypes(downloadTypes: List<DownloadType>?) {
+        this.downloadTypes = downloadTypes?.joinToString(",")
     }
 }

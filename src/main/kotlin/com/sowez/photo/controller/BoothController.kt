@@ -19,12 +19,11 @@ class BoothController(
      */
     @PostMapping("/{storeId}/booth")
     fun createBooth(
+            @PathVariable storeId: Long,
             @RequestBody @Valid createDto: BoothCreateReqDto
-    ): ResponseEntity<ResponseDto<CreateResponseDto>> {
-        val newBootheId = boothService.createBooth(createDto)
-        return ResponseEntity.ok(
-                ResponseDto(body = CreateResponseDto(newBootheId))
-        )
+    ): ResponseEntity<ResponseDto<Void>> {
+        boothService.createBooth(storeId, createDto)
+        return ResponseEntity.ok(ResponseDto())
     }
 
     /**
