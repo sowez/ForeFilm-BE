@@ -11,7 +11,11 @@ class WebConfig(
 ): WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
+//            .allowedOrigins("*")
+            .allowedOrigins("http://localhost:3000")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("Content-Type", "Authorization")
+            .allowCredentials(true)  // 자격증명 포함 요청 허용
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
