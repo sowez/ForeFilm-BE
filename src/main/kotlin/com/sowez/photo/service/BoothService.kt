@@ -1,12 +1,12 @@
 package com.sowez.photo.service
 
+import com.sowez.photo.dto.BoothBackgroundInfoResDto
 import com.sowez.photo.dto.BoothInfoResDto
 import com.sowez.photo.dto.req.BoothCreateReqDto
 import com.sowez.photo.dto.req.BoothEditReqDto
 import com.sowez.photo.entity.*
 import com.sowez.photo.error.StoreNotFoundException
 import com.sowez.photo.repository.*
-import com.sowez.photo.type.DownloadType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -93,13 +93,20 @@ class BoothServiceImpl(
         // StoreBoothBackgroundColors 조회
         val storeBoothBackgroundColors = storeBoothBackgroundColorRepository.findByStore(store)
 
+        val boothBackgroundColorInfos = if (storeBoothBackgroundColors.isNullOrEmpty()) listOf()
+            else storeBoothBackgroundColors.map {
+                BoothBackgroundInfoResDto(
+                    boothBackgroundColorId = it.id,
+                    boothBackgroundColorName = it.boothBackgroundColor.name,
+                    boothBackgroundColorCode = it.boothBackgroundColor.code
+                )
+            }
+
         return store
                 .run {
                     BoothInfoResDto(
                             boothCount = this.boothInfo?.boothCount,
-                            boothBackgroundColorIds = storeBoothBackgroundColors?.map { it.boothBackgroundColor.id },
-                            boothBackgroundColorNames = storeBoothBackgroundColors?.map { it.boothBackgroundColor.name },
-                            boothBackgroundColorCodes = storeBoothBackgroundColors?.map { it.boothBackgroundColor.code },
+                            boothBackgroundColors = boothBackgroundColorInfos,
                             minPeopleCount = this.boothInfo?.minPeopleCount,
                             maxPeopleCount = this.boothInfo?.maxPeopleCount,
                             downloadTypes = this.boothInfo?.getDownloadTypes(),

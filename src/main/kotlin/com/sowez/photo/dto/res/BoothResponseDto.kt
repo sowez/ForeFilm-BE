@@ -4,9 +4,7 @@ import com.sowez.photo.type.DownloadType
 
 data class BoothInfoResDto (
         val boothCount: Int?,
-        val boothBackgroundColorIds: List<Long>? = mutableListOf(),
-        val boothBackgroundColorNames: List<String>? = mutableListOf(),
-        val boothBackgroundColorCodes: List<String>? = mutableListOf(),
+        val boothBackgroundColors: List<BoothBackgroundInfoResDto> = mutableListOf(),
         val minPeopleCount: Int?,
         val maxPeopleCount: Int?,
         val downloadTypes: List<DownloadType>? = mutableListOf(),
