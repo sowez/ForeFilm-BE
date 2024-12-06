@@ -22,4 +22,10 @@ interface ReviewImageRepository: JpaRepository<ReviewImage, Long> {
             "where r.store.id = :storeId " +
             "order by ri.id desc")
     fun findNewestImageIds(storeId: Long, pageable: Pageable): List<Long>
+
+    @Query(value = "select ri.image.id " +
+        "from ReviewImage ri join ri.review r " +
+        "where r.id = :reviewId")
+    fun findImageIdsByReviewId(reviewId: Long): List<Long>
+
 }

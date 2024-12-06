@@ -11,5 +11,6 @@ enum class ErrorCode(
     NOT_FOUND(404, "NOT FOUND"),
     BRAND_NOT_EXIST(404, "존재하지 않는 브랜드입니다."),
     STORE_NOT_EXIST(404, "존재하지 않는 매장입니다."),
-
+    REVIEW_NOT_EXIST(404, "존재하지 않는 리뷰입니다."),
+    TAG_NOT_EXIST(404, "존재하지 않는 태그입니다."),
 }
