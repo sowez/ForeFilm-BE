@@ -1,25 +1,27 @@
 package com.sowez.photo.service
 
-import com.sowez.photo.dto.BoothBackgroundInfoResDto
-import com.sowez.photo.dto.BoothBackgroundsResDto
-import com.sowez.photo.dto.BrandInfoResDto
-import com.sowez.photo.dto.BrandsResponseDto
+import com.sowez.photo.dto.*
+import com.sowez.photo.repository.BoothBackgroundColorRepository
 import org.springframework.stereotype.Service
 
 @Service
 interface BoothBackgroundService {
-    fun getBoothBackgroundInfo(): BoothBackgroundsResDto
+    fun getBoothBackgroundInfo(): BoothBackgroundInfosResDto
 }
 
 @Service
-class BoothBackgroundServiceTestImpl : BoothBackgroundService {
-    override fun getBoothBackgroundInfo(): BoothBackgroundsResDto {
-        return BoothBackgroundsResDto(
-                listOf(
-                        BoothBackgroundInfoResDto(boothBackgroundColorId = 1, boothBackgroundColorName = "흰색", boothBackgroundColorCode ="#FFFFFF"),
-                        BoothBackgroundInfoResDto(boothBackgroundColorId = 2, boothBackgroundColorName = "하늘색", boothBackgroundColorCode ="#A1B1C1")
-                )
-        )
-    }
+class BoothBackgroundServiceImpl(
+        val boothBackgroundColorRepository: BoothBackgroundColorRepository
+) : BoothBackgroundService {
+    override fun getBoothBackgroundInfo(): BoothBackgroundInfosResDto {
+        val boothBackgroundColors = boothBackgroundColorRepository.findAll()
 
+        return BoothBackgroundInfosResDto(boothBackgroundColors.map { boothBackgroundColor ->
+            BoothBackgroundInfoResDto(
+                    boothBackgroundColorId = boothBackgroundColor.id,
+                    boothBackgroundColorName = boothBackgroundColor.name,
+                    boothBackgroundColorCode = boothBackgroundColor.code
+            )
+        })
+    }
 }
