@@ -17,11 +17,12 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import java.time.LocalDateTime
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 class ReviewControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val objectMapper: ObjectMapper,
@@ -32,7 +33,6 @@ class ReviewControllerTest(
     @Autowired val reviewImageRepository: ReviewImageRepository,
     @Autowired val reviewTagRepository: ReviewTagRepository,
     @Autowired val tagRepository: TagRepository,
-
     ){
     @Test
     @DisplayName("새로운 리뷰 작성")
@@ -368,7 +368,7 @@ class ReviewControllerTest(
             .andExpect(jsonPath("$.body.reviews[0].review_tags[0].tag_emoji_name").value(tag2.emojiName))
             .andExpect(jsonPath("$.body.reviews[0].thumbnail_image_url").value("https://www.forefilm.com"+image2.path))
             .andExpect(jsonPath("$.body.reviews[0].image_count").value(1))
-            .andExpect(jsonPath("$.body.last_review_id").value(1))
+            .andExpect(jsonPath("$.body.last_review_id").value(review1.id))
             .andDo(print())
     }
 
