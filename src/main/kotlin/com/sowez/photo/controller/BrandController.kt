@@ -1,8 +1,7 @@
 package com.sowez.photo.controller
 
-import com.sowez.photo.dto.BoothInfoResDto
 import com.sowez.photo.dto.BrandInfoResDto
-import com.sowez.photo.dto.BrandsResponseDto
+import com.sowez.photo.dto.BrandInfosResDto
 import com.sowez.photo.dto.res.*
 import com.sowez.photo.service.BrandService
 import org.springframework.http.ResponseEntity
@@ -18,7 +17,7 @@ class BrandController(
      */
     @GetMapping
     fun getBoothInfo(
-    ): ResponseEntity<ResponseDto<BrandsResponseDto>>{
+    ): ResponseEntity<ResponseDto<BrandInfosResDto>>{
         val brandsResponse = brandService.getBrandInfo()
         return ResponseEntity.ok(ResponseDto(body = brandsResponse))
     }

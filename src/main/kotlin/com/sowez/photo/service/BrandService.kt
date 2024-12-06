@@ -1,24 +1,27 @@
 package com.sowez.photo.service
 
-import com.sowez.photo.dto.BoothBackgroundInfoResDto
 import com.sowez.photo.dto.BrandInfoResDto
-import com.sowez.photo.dto.BrandsResponseDto
+import com.sowez.photo.dto.BrandInfosResDto
+import com.sowez.photo.repository.BrandRepository
 import org.springframework.stereotype.Service
 
 @Service
 interface BrandService {
-    fun getBrandInfo(): BrandsResponseDto
+    fun getBrandInfo(): BrandInfosResDto
 }
 
 @Service
-class BrandServiceTestImpl : BrandService {
-    override fun getBrandInfo(): BrandsResponseDto {
-        return BrandsResponseDto(
-                listOf(
-                        BrandInfoResDto(brandId = 1, brandName = "하루필름"),
-                        BrandInfoResDto(brandId = 2, brandName = "인생네컷")
-                )
-        )
+class BrandServiceImpl(
+        val brandRepository: BrandRepository
+) : BrandService {
+    override fun getBrandInfo(): BrandInfosResDto {
+        val brands = brandRepository.findAll()
+        return BrandInfosResDto(brands.map { brand ->
+            BrandInfoResDto(
+                    brandId = brand.id,
+                    brandName = brand.name,
+                    brandImageLogo = brand.logoImage
+            )
+        })
     }
-
 }
