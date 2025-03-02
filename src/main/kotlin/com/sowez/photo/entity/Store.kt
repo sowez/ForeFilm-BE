@@ -4,6 +4,7 @@ import com.sowez.photo.type.DownloadType
 import com.sowez.photo.type.PayType
 import com.sowez.photo.type.StoreType
 import jakarta.persistence.*
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
@@ -112,10 +113,10 @@ class Store(
 data class Address(
     @Column(nullable = false, name = "store_address")
     var address: String,
-    @Column
-    var latitude: Double? = null,
-    @Column
-    var longitude: Double? = null
+    @Column(columnDefinition = "numeric(9,6)")
+    var latitude: BigDecimal? = null,
+    @Column(columnDefinition = "numeric(9,6)")
+    var longitude: BigDecimal? = null
 )
 
 @Embeddable
